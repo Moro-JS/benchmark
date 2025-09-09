@@ -1,0 +1,26 @@
+{
+  "name": "morojs-benchmarks",
+  "version": "1.0.0",
+  "description": "Performance benchmarks for MoroJS framework",
+  "private": true,
+  "scripts": {
+    "install-deps": "npm install",
+    "hello-world": "NODE_ENV=production node hello-world-server.js",
+    "bench": "autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3111",
+    "bench-quick": "autocannon -c 50 -d 10 -p 5 http://127.0.0.1:3111",
+    "bench-real": "autocannon -c 100 -d 20 -p 10 http://127.0.0.1:3001",
+    "bench-real-quick": "autocannon -c 50 -d 10 -p 5 http://127.0.0.1:3001",
+    "bench-post": "autocannon -c 50 -d 10 -p 5 -m POST -H \"Content-Type: application/json\" -b '{\"name\":\"John Doe\",\"email\":\"john@example.com\",\"age\":30}' http://127.0.0.1:3001/users",
+    "compare": "echo 'Start hello-world server in one terminal, then run: npm run bench'"
+  },
+  "dependencies": {
+    "@morojs/moro": "^1.0.0",
+    "autocannon": "^7.15.0"
+  },
+  "keywords": [
+    "benchmark",
+    "performance",
+    "morojs",
+    "autocannon"
+  ]
+} 
