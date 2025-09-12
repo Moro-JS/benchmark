@@ -14,7 +14,7 @@
     "compare": "echo 'Start hello-world server in one terminal, then run: npm run bench'"
   },
   "dependencies": {
-    "@morojs/moro": "^1.0.0",
+    "@morojs/moro": "latest",
     "autocannon": "^7.15.0"
   },
   "keywords": [
