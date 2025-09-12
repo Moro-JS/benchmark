@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "install-deps": "npm install",
-    "hello-world": "NODE_ENV=production node hello-world-server.js",
+    "hello-world": "NODE_ENV=production LOG_LEVEL=warn node hello-world-server.js",
     "bench": "autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3111",
     "bench-quick": "autocannon -c 50 -d 10 -p 5 http://127.0.0.1:3111",
     "bench-real": "autocannon -c 100 -d 20 -p 10 http://127.0.0.1:3001",
