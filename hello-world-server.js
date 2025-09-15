@@ -5,12 +5,7 @@
 
 const { createApp } = require('@morojs/moro');
 
-const app = createApp({
-  // Minimal middleware for fair comparison
-  cors: false,
-  helmet: false,
-  compression: false
-});
+const app = createApp();
 
 // Minimal "hello world" endpoint - matches Fastify benchmark style
 app.get('/', function (_req, _res) {
