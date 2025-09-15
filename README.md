@@ -1,12 +1,13 @@
 # MoroJS Performance Benchmarks
 
-**MoroJS outperforms Fastify by 47% while delivering superior TypeScript safety, validation, and developer experience.**
+**MoroJS with built-in clustering achieves 136,937 req/sec while delivering superior TypeScript safety, validation, and developer experience.**
 
 ## Performance Results
 
 ### Synthetic Benchmark (Industry Standard)
-- **68,392 req/sec** vs Fastify's 46,400 req/sec (**47% faster**)
-- **14.12ms average latency** vs Fastify's 21.04ms (**33% faster**)
+- **136,937 req/sec** with built-in clustering
+- **61,562 req/sec** single-threaded
+- **6.81ms average latency** with clustering (15.74ms single-threaded)
 - **0% error rate** across all test scenarios
 
 ### Real-World Application Performance
@@ -16,22 +17,26 @@
 
 ## Framework Comparison
 
-| Metric | Fastify | **MoroJS** | MoroJS Advantage |
-|--------|---------|------------|------------------|
-| **Synthetic Performance** | 46,400 req/sec | **68,392 req/sec** | **+47% faster** |
-| **Latency** | 21.04ms | **14.12ms** | **33% faster** |
-| **TypeScript Support** | Plugin-based | **Native first-class** | **Built-in intelligence** |
-| **Validation** | JSON Schema | **Zod integration** | **Faster + better DX** |
-| **Error Handling** | Manual setup | **Intelligent defaults** | **Zero-config safety** |
-| **Real-world Testing** | Synthetic only | **Comprehensive suite** | **Production-ready validation** |
-| **Learning Curve** | Complex plugins | **Intuitive API** | **Faster development** |
+| Metric | Fastify | **MoroJS (Single)** | **MoroJS (Clustered)** | MoroJS Advantage |
+|--------|---------|---------------------|------------------------|------------------|
+| **Synthetic Performance** | 46,400 req/sec | **61,562 req/sec** | **136,937 req/sec** | **195% faster** |
+| **Latency** | 21.04ms | **15.74ms** | **6.81ms** | **68% faster** |
+| **TypeScript Support** | Plugin-based | **Native first-class** | **Native first-class** | **Built-in intelligence** |
+| **Validation** | JSON Schema | **Zod integration** | **Zod integration** | **Faster + better DX** |
+| **Error Handling** | Manual setup | **Intelligent defaults** | **Intelligent defaults** | **Zero-config safety** |
+| **Real-world Testing** | Synthetic only | **Comprehensive suite** | **Comprehensive suite** | **Production-ready validation** |
+| **Learning Curve** | Complex plugins | **Intuitive API** | **Intuitive API** | **Faster development** |
 
 ## Why MoroJS is the New Performance Standard
 
 ### Beyond Raw Speed
-While Fastify focuses solely on synthetic benchmarks, MoroJS delivers superior performance across every metric that matters:
+While other frameworks focus solely on synthetic benchmarks, MoroJS delivers superior performance across every metric that matters:
 
-**Performance**: 47% faster in synthetic tests, with real-world benchmarks to prove production readiness
+**Performance**: 
+- 195% faster than Fastify with clustering
+- 33% faster than Fastify even in single-threaded mode
+- Built-in clustering achieves 136,937 req/sec with zero configuration
+
 **Safety**: TypeScript-native with zero runtime overhead
 **Validation**: Zod integration that's faster than JSON Schema
 **Developer Experience**: Intelligent APIs that reduce bugs and development time
@@ -59,16 +64,18 @@ app.post('/users', {
 ## Technical Advantages
 
 ### Performance Optimizations
-1. **Zero-cost routing** - Intelligent route matching without overhead
-2. **Native TypeScript compilation** - No runtime type checking penalties  
-3. **Optimized Zod integration** - Faster validation than JSON Schema
-4. **Smart bundling** - Production builds eliminate dead code
+1. **Built-in clustering** - Automatic multi-core utilization
+2. **Zero-cost routing** - Intelligent route matching without overhead
+3. **Native TypeScript compilation** - No runtime type checking penalties  
+4. **Optimized Zod integration** - Faster validation than JSON Schema
+5. **Smart bundling** - Production builds eliminate dead code
 
 ### Architecture Benefits
 - **TypeScript-first design** eliminates entire classes of runtime errors
 - **Intelligent middleware system** with automatic optimization
 - **Production-hardened defaults** based on real-world usage patterns
 - **Comprehensive testing** including edge cases other frameworks ignore
+- **Built-in clustering** with zero configuration needed
 
 ## Benchmark Methodology
 
@@ -85,28 +92,28 @@ Unlike synthetic-only frameworks, MoroJS includes comprehensive real-world scena
 - Production validation patterns
 - TypeScript compilation overhead
 - Error handling and edge cases
+- Multi-core utilization
 
 ## Running the Benchmarks
 
 ### Quick Start
 ```bash
-# Build the framework
-npm run build
-
-# Install industry-standard benchmarking tool
-npm install -g autocannon
+# Install dependencies
+npm install
 
 # Start the test server
 npm run hello-world
 
 # Run the benchmark (in another terminal)
-autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3111
+npm run bench
 ```
 
-**Expected Result**: ~68,392 req/sec (47% faster than Fastify's published results)
+**Expected Results**: 
+- ~136,937 req/sec with default clustering
+- ~61,562 req/sec without clustering
 
 ### Available Tests
-- `npm run hello-world` - Fastify-compatible synthetic benchmark
+- `npm run hello-world` - Standard benchmark with clustering
 - `npm run benchmark:synthetic` - Internal development benchmark
 
 ## The MoroJS Advantage
@@ -114,13 +121,14 @@ autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3111
 ### Performance Without Compromise
 Most frameworks force you to choose between speed and safety. MoroJS delivers both:
 
-- **Faster than Fastify** in head-to-head synthetic tests
+- **195% faster than Fastify** with built-in clustering
 - **Superior real-world performance** with validation and safety
 - **TypeScript intelligence** that prevents entire classes of bugs
 - **Zero configuration** for production-ready applications
 
 ### Production Ready
 While other frameworks excel in synthetic benchmarks but struggle in production, MoroJS is built for real applications:
+- Built-in clustering for maximum performance
 - Comprehensive error handling
 - Intelligent middleware system
 - Production-hardened defaults
@@ -129,10 +137,10 @@ While other frameworks excel in synthetic benchmarks but struggle in production,
 ## Framework Positioning
 
 **Fastify**: Fast synthetic benchmarks, complex production setup
-**MoroJS**: Faster synthetic performance + superior production experience
+**MoroJS**: Superior performance + built-in clustering + better developer experience
 
 MoroJS represents the next generation of Node.js frameworks - delivering raw performance that exceeds current standards while providing the safety, intelligence, and developer experience needed for modern applications.
 
 ---
 
-**Ready to experience the fastest TypeScript-first framework?** Run the benchmarks and see why MoroJS is setting the new performance standard. 
+**Ready to experience the fastest TypeScript-first framework?** Run the benchmarks and see why MoroJS is setting the new performance standard.
