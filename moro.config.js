@@ -2,7 +2,7 @@ module.exports = {
     // Minimal middleware for fair comparison
     performance: {
       clustering: {
-        enabled: false, // unleash the power of clustering to really see the power
+        enabled: true, // unleash the power of clustering to really see the power
         workers: 'auto'
       },
       compression: {
@@ -10,6 +10,19 @@ module.exports = {
       },
       circuitBreaker: {
         enabled: false  // Disable circuit breaker overhead
+      }
+    },
+    
+    // Disable some modules for maximum performance
+    modules: {
+      cache: {
+        enabled: true
+      },
+      rateLimit: {
+        enabled: false
+      },
+      validation: {
+        enabled: false
       }
     },
     
