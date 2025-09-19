@@ -8,13 +8,22 @@ const { createApp } = require('@morojs/moro');
 const app = createApp();
 
 // Minimal "hello world" endpoint - matches Fastify benchmark style
-app.get('/', function (_req, _res) {
+app.get('/', () => {
   return { hello: 'world' };
 });
 
+// No JSON Header "hello world" endpoint
+app.get('/string', function (_req, _res) {
+    _res.end('{ hello: "world" }');
+});
+
 // Start server on port 3111 (avoid conflicts)
-app.listen(3111, '127.0.0.1', () => {
-  console.log('MoroJS benchmark server listening on http://127.0.0.1:3111');
-  console.log('Ready for autocannon benchmarking');
-  console.log('Run: autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3111');
+app.listen(() => {
+  setTimeout(() => {
+      const config = app.config;
+      console.log(`MoroJS benchmark server listening on http://${config.server.host}:${config.server.port}`);
+      console.log('Ready for autocannon benchmarking');
+      console.log(`Run: autocannon -c 100 -d 40 -p 10 http://${config.server.host}:${config.server.port}`);
+      console.log(`No JSON Header Run: autocannon -c 100 -d 40 -p 10 http://${config.server.host}:${config.server.port}/string`);
+  }, 1000);
 }); 
