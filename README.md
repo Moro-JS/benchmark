@@ -1,13 +1,15 @@
 # MoroJS Performance Benchmarks
 
-**MoroJS with built-in clustering achieves 136,937 req/sec while delivering superior TypeScript safety, validation, and developer experience.**
+**MoroJS reaches ~226,253 req/sec with uWebSockets.js, ~190,717 req/sec with built-in clustering, and ~93,992 req/sec single-threaded on the standard stack—while keeping TypeScript safety, validation, and developer experience.**
 
 ## Performance Results
 
 ### Synthetic Benchmark (Industry Standard)
-- **136,937 req/sec** with built-in clustering
-- **61,562 req/sec** single-threaded
-- **6.81ms average latency** with clustering (15.74ms single-threaded)
+- **~226,253 req/sec** with **uWebSockets.js** (`npm run hello-world-uws` + `npm run bench-uws`)
+- **3.92ms average latency** with uWebSockets.js (50th percentile **4ms**)
+- **~190,717 req/sec** with built-in clustering (Node HTTP, `npm run hello-world` + `npm run bench`)
+- **~93,992 req/sec** single-threaded (`npm run hello-world-single` + `npm run bench-single`, port **3110**)
+- **4.89ms average latency** with clustering (50th **5ms**); **10.14ms** average / **8ms** p50 single-threaded
 - **0% error rate** across all test scenarios
 
 ### Real-World Application Performance
@@ -17,15 +19,15 @@
 
 ## Framework Comparison
 
-| Metric | Fastify | **MoroJS (Single)** | **MoroJS (Clustered)** | MoroJS Advantage |
-|--------|---------|---------------------|------------------------|------------------|
-| **Synthetic Performance** | 46,400 req/sec | **61,562 req/sec** | **136,937 req/sec** | **195% faster** |
-| **Latency** | 21.04ms | **15.74ms** | **6.81ms** | **68% faster** |
-| **TypeScript Support** | Plugin-based | **Native first-class** | **Native first-class** | **Built-in intelligence** |
-| **Validation** | JSON Schema | **Zod integration** | **Zod integration** | **Faster + better DX** |
-| **Error Handling** | Manual setup | **Intelligent defaults** | **Intelligent defaults** | **Zero-config safety** |
-| **Real-world Testing** | Synthetic only | **Comprehensive suite** | **Comprehensive suite** | **Production-ready validation** |
-| **Learning Curve** | Complex plugins | **Intuitive API** | **Intuitive API** | **Faster development** |
+| Metric | Fastify | **MoroJS (Single)** | **MoroJS (Clustered)** | **MoroJS (uWS)** | MoroJS Advantage |
+|--------|---------|---------------------|------------------------|------------------|------------------|
+| **Synthetic Performance** | 46,400 req/sec | **~93,992 req/sec** | **~190,717 req/sec** | **~226,253 req/sec** | **Up to ~387% faster** (uWS vs Fastify) |
+| **Latency (avg)** | 21.04ms | **10.14ms** | **4.89ms** | **3.92ms** | **~52–81% lower** than Fastify (single → uWS) |
+| **TypeScript Support** | Plugin-based | **Native first-class** | **Native first-class** | **Native first-class** | **Built-in intelligence** |
+| **Validation** | JSON Schema | **Zod integration** | **Zod integration** | **Zod integration** | **Faster + better DX** |
+| **Error Handling** | Manual setup | **Intelligent defaults** | **Intelligent defaults** | **Intelligent defaults** | **Zero-config safety** |
+| **Real-world Testing** | Synthetic only | **Comprehensive suite** | **Comprehensive suite** | **Comprehensive suite** | **Production-ready validation** |
+| **Learning Curve** | Complex plugins | **Intuitive API** | **Intuitive API** | **Intuitive API** | **Faster development** |
 
 ## Why MoroJS is the New Performance Standard
 
@@ -33,9 +35,10 @@
 While other frameworks focus solely on synthetic benchmarks, MoroJS delivers superior performance across every metric that matters:
 
 **Performance**: 
-- 195% faster than Fastify with clustering
-- 33% faster than Fastify even in single-threaded mode
-- Built-in clustering achieves 136,937 req/sec with zero configuration
+- **~226,253 req/sec** with optional uWebSockets.js on the same hello-world autocannon profile
+- **~387% higher throughput** than Fastify’s synthetic figure with uWebSockets.js; **~311%** with clustering on the standard stack
+- **~103% higher throughput** than Fastify’s synthetic figure in single-threaded mode (~94k vs ~46k req/sec — roughly **2×**)
+- Built-in clustering achieves **~190,717 req/sec** on the standard HTTP stack with zero configuration (**~103%** higher throughput vs single-threaded on recorded runs)
 
 **Safety**: TypeScript-native with zero runtime overhead
 **Validation**: Zod integration that's faster than JSON Schema
@@ -56,7 +59,6 @@ app.post('/users', {
     email: z.string().email()
   })
 }, async (req) => {
-  // 37,863 req/sec with full validation
   // Type-safe, runtime-safe, zero config
 });
 ```
@@ -86,6 +88,8 @@ Our benchmarks use the exact same methodology as Fastify's official benchmarks:
 - 10 pipelining factor
 - Minimal "hello world" response
 
+The **uWebSockets.js** numbers use the same autocannon settings against `hello-world-uws-server.js` on port **3112** (`npm run hello-world-uws` / `npm run bench-uws`). **Single-threaded** runs use `hello-world-server-single-thread.js` on port **3110** with `npm run bench-single`. **Clustered** runs use `hello-world-server.js` on port **3111** with `npm run bench`.
+
 ### Real-World Testing
 Unlike synthetic-only frameworks, MoroJS includes comprehensive real-world scenarios:
 - Multiple endpoint types (GET, POST, parameterized routes)
@@ -108,20 +112,47 @@ npm run hello-world
 npm run bench
 ```
 
+**Single-threaded** (port 3110 — use its own server + load pair):
+
+```bash
+npm run hello-world-single
+# other terminal:
+npm run bench-single
+```
+
+**Clustered** (second terminal for load):
+
+```bash
+npm run hello-world
+# other terminal:
+npm run bench
+```
+
+**uWebSockets** (second terminal for load):
+
+```bash
+npm run hello-world-uws
+# other terminal:
+npm run bench-uws
+```
+
 **Expected Results**: 
-- ~136,937 req/sec with default clustering
-- ~61,562 req/sec without clustering
+- ~226,253 req/sec with uWebSockets.js (verified autocannon run)
+- ~190,717 req/sec with default clustering (standard stack)
+- ~93,992 req/sec single-threaded (`hello-world-server-single-thread.js` on port 3110)
 
 ### Available Tests
-- `npm run hello-world` - Standard benchmark with clustering
-- `npm run benchmark:synthetic` - Internal development benchmark
+- `npm run hello-world` — Clustered server (port **3111**); pair with `npm run bench`
+- `npm run hello-world-single` — Single-threaded server (port **3110**); pair with `npm run bench-single`
+- `npm run hello-world-uws` — uWebSockets.js server (port **3112**); pair with `npm run bench-uws`
+- `npm run bench-quick` / `bench-single-quick` / `bench-uws-quick` — Shorter autocannon runs
 
 ## The MoroJS Advantage
 
 ### Performance Without Compromise
 Most frameworks force you to choose between speed and safety. MoroJS delivers both:
 
-- **195% faster than Fastify** with built-in clustering
+- **Up to ~387% higher synthetic throughput than Fastify** with uWebSockets.js; **~311%** with clustering on the standard stack; **~103%** single-threaded vs Fastify’s synthetic figure
 - **Superior real-world performance** with validation and safety
 - **TypeScript intelligence** that prevents entire classes of bugs
 - **Zero configuration** for production-ready applications

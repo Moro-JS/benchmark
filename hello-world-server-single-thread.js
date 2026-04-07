@@ -7,7 +7,7 @@ import { createApp } from '@morojs/moro';
 
 const app = await createApp({
   server: {
-    port: 3111,        // Default benchmark port (can be overridden by PORT env var)
+    port: 3110,        // Default benchmark port (can be overridden by PORT env var)
     host: '127.0.0.1',  // Default benchmark host (can be overridden by HOST env var)
     requestTracking: {
         enabled: false, // Disable for fair comparison
@@ -19,8 +19,8 @@ const app = await createApp({
   // Minimal middleware for fair comparison
   performance: {
       clustering: {
-          enabled: true, // unleash the power of clustering to really see the power
-          workers: 'auto'
+          enabled: false, // unleash the power of clustering to really see the power
+          workers: 'auto',
       },
   },
 

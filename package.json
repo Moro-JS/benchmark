@@ -3,19 +3,28 @@
   "version": "1.0.0",
   "description": "Performance benchmarks for MoroJS framework",
   "private": true,
+  "type": "module",
   "scripts": {
     "install-deps": "npm install",
-    "hello-world": "NODE_ENV=production LOG_LEVEL=warn node hello-world-server.js",
+    "hello-world": "NODE_ENV=production LOG_LEVEL=warn PORT=3111 node hello-world-server.js",
+    "hello-world-uws": "NODE_ENV=production LOG_LEVEL=warn PORT=3112 node hello-world-uws-server.js",
+    "hello-world-single": "NODE_ENV=production LOG_LEVEL=warn PORT=3110 node hello-world-server-single-thread.js",
     "bench": "autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3111",
     "bench-quick": "autocannon -c 50 -d 10 -p 5 http://127.0.0.1:3111",
-    "bench-real": "autocannon -c 100 -d 20 -p 10 http://127.0.0.1:3001",
-    "bench-real-quick": "autocannon -c 50 -d 10 -p 5 http://127.0.0.1:3001",
+    "bench-single": "autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3110",
+    "bench-single-quick": "autocannon -c 50 -d 10 -p 5 http://127.0.0.1:3110",
+    "bench-uws": "autocannon -c 100 -d 40 -p 10 http://127.0.0.1:3112",
+    "bench-uws-quick": "autocannon -c 50 -d 10 -p 5 http://127.0.0.1:3112",
     "bench-post": "autocannon -c 50 -d 10 -p 5 -m POST -H \"Content-Type: application/json\" -b '{\"name\":\"John Doe\",\"email\":\"john@example.com\",\"age\":30}' http://127.0.0.1:3001/users",
-    "compare": "echo 'Start hello-world server in one terminal, then run: npm run bench'"
+    "bench-post-uws": "autocannon -c 50 -d 10 -p 5 -m POST -H \"Content-Type: application/json\" -b '{\"name\":\"John Doe\",\"email\":\"john@example.com\",\"age\":30}' http://127.0.0.1:3112/users",
+    "compare": "echo 'Start hello-world server in one terminal, then run: npm run bench'",
+    "compare-uws": "echo 'Start hello-world-uws in one terminal, then run: npm run bench-uws'",
+    "compare-single": "echo 'Start hello-world-single in one terminal, then run: npm run bench-single'"
   },
   "dependencies": {
     "@morojs/moro": "latest",
-    "autocannon": "^7.15.0"
+    "autocannon": "^8.0.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^v20.52.0"
   },
   "keywords": [
     "benchmark",
