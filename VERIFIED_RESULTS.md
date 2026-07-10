@@ -27,6 +27,7 @@ idle machine (load < 3 at start):
 | MoroJS (single thread, node engine, npm) | 68,163 | 119,570 | 1.4 ms | 1.8 ms | 216 MB |
 | Elysia (Node adapter)³ | 66,786 | 115,798 | 1.5 ms | 1.9 ms | 219 MB |
 | Koa | 60,924 | 93,903 | 1.6 ms | 2.1 ms | 220 MB |
+| Hono | 56,926 | 100,278 | 1.4 ms | 3.0 ms | 204 MB |
 | Express | 47,279 | 69,540 | 2.1 ms | 2.6 ms | 233 MB |
 
 Headlines:

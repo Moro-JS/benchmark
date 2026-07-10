@@ -15,6 +15,7 @@
     "bench:fastify": "node bench.js fastify",
     "bench:express": "node bench.js express",
     "bench:koa": "node bench.js koa",
+    "bench:hono": "node bench.js hono",
     "bench:raw-node": "node bench.js raw-node",
     "bench:raw-uws": "node bench.js raw-uws",
     "server:single": "NODE_ENV=production LOG_LEVEL=warn PORT=3110 node servers/moro-single-server.js",
@@ -37,12 +38,14 @@
   },
   "dependencies": {
     "@elysiajs/node": "^1.4.5",
+    "@hono/node-server": "^2.0.8",
     "@morojs/engine": "^1.1.0",
     "@morojs/moro": "latest",
     "autocannon": "^8.0.0",
     "elysia": "^1.4.29",
     "express": "^5.2.1",
     "fastify": "^5.9.0",
+    "hono": "^4.12.29",
     "koa": "^3.2.1",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#semver:^v20.52.0"
   },

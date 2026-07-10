@@ -231,6 +231,7 @@ generator + profile + platform — alongside any table.
 | `servers/fastify-server.js` | Fastify comparison (port 3122) |
 | `servers/express-server.js` | Express comparison (port 3123) |
 | `servers/koa-server.js` | Koa comparison (port 3124) |
+| `servers/hono-server.js` | Hono via official `@hono/node-server` (port 3129) |
 | `servers/elysia-node-server.js` | Elysia via official Node adapter (port 3125) |
 | `servers/elysia-bun-server.js` | Elysia native on Bun (port 3126, needs Bun) |
 | `servers/raw-bun-server.js` | Raw `Bun.serve` baseline (port 3127, needs Bun) |

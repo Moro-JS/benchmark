@@ -124,6 +124,7 @@ const TARGETS = [
   { key: 'fastify', name: 'Fastify', file: 'servers/fastify-server.js', port: 3122 },
   { key: 'express', name: 'Express', file: 'servers/express-server.js', port: 3123 },
   { key: 'koa', name: 'Koa', file: 'servers/koa-server.js', port: 3124 },
+  { key: 'hono', name: 'Hono (Node)', file: 'servers/hono-server.js', port: 3129 },
   { key: 'elysia-node', name: 'Elysia (Node adapter)', file: 'servers/elysia-node-server.js', port: 3125 },
   // Bun-runtime targets - run only when Bun is installed. Bun's pipelining
   // weakness (framework-independent) is exactly why both profiles are shown.
