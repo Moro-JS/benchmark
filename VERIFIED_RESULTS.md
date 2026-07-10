@@ -1,152 +1,71 @@
 # MoroJS Performance Benchmark Results
 
-## PERFORMANCE COMPARISON
+**Verified 2026-07-10** · `wrk` · Node v24.11.0 · Apple M2 Ultra (24-core, 64 GB), macOS
+· MoroJS **1.8.0** · @morojs/engine **1.1.0** — both installed **from npm** (the
+exact artifacts users get), served by `bench.js` (one server at a time, per-target
+ports, boot sanity asserts the intended engine actually loaded). Engine 1.1.1 was
+subsequently A/B-verified performance-identical to 1.1.0 (alternating
+published-binary rounds), so these results represent both.
 
-| Framework | Requests/sec | Latency (avg) | Latency (50%) | Notes |
-|-----------|--------------|---------------|---------------|--------|
-| **MoroJS (uWebSockets.js)** | **226,253** | **3.92ms** | **4ms** | `hello-world-uws-server.js`, port 3112; same autocannon profile |
-| **MoroJS (Clustered)** | **190,717** | **4.89ms** | **5ms** | Built-in clustering; `hello-world-server.js`, port 3111; `npm run bench` |
-| **MoroJS (Single)** | **93,992** | **10.14ms** | **8ms** | Clustering disabled; `hello-world-server-single-thread.js`, port 3110; `npm run bench-single` |
+## Publication run — full matrix, `-d 40`, best-of-3 (the headline numbers)
 
-## DETAILED RESULTS
+Saved by `bench.js --save`: [results-2026-07-10T08-55-20.md](results-2026-07-10T08-55-20.md).
+`wrk -c 100 -d 40`, best-of-3 per target, both profiles, one server at a time,
+idle machine (load < 3 at start):
 
-### MoroJS with uWebSockets.js
-```
-Running test @ http://127.0.0.1:3112
-100 connections with 10 pipelining factor
+| Server | Req/sec (no pipelining) | Req/sec (pipelined ×10) | Latency avg | Latency p99 | RSS under load |
+|--------|------------------------|--------------------------|-------------|-------------|----------------|
+| MoroJS + @morojs/engine (clustered, npm)² | 103,971 | 584,016 | 0.9 ms | 1.6 ms | 2051 MB |
+| raw uWebSockets.js (baseline, no framework) | 103,744 | 647,530 | 0.9 ms | 1.7 ms | 53 MB |
+| **MoroJS + @morojs/engine (npm)** _(default)_ | **102,409** | **572,053** | **0.9 ms** | 1.6 ms | 230 MB |
+| MoroJS + uWebSockets.js (npm) | 101,237 | 520,799 | 0.9 ms | 1.6 ms | 87 MB |
+| raw Bun.serve (baseline, no framework)³ | 107,119 | 21,686 | 0.9 ms | 1.9 ms | 36 MB |
+| Elysia (Bun)³ | 96,717 | 18,690 | 1.0 ms | 1.7 ms | 78 MB |
+| Fastify | 69,375 | 117,069 | 1.4 ms | 1.8 ms | 215 MB |
+| raw node:http (baseline, no framework) | 69,045 | 109,538 | 1.4 ms | 1.8 ms | 258 MB |
+| MoroJS (single thread, node engine, npm) | 68,163 | 119,570 | 1.4 ms | 1.8 ms | 216 MB |
+| Elysia (Node adapter)³ | 66,786 | 115,798 | 1.5 ms | 1.9 ms | 219 MB |
+| Koa | 60,924 | 93,903 | 1.6 ms | 2.1 ms | 220 MB |
+| Express | 47,279 | 69,540 | 2.1 ms | 2.6 ms | 233 MB |
 
-┌─────────┬──────┬──────┬───────┬──────┬─────────┬─────────┬───────┐
-│ Stat    │ 2.5% │ 50%  │ 97.5% │ 99%  │ Avg     │ Stdev   │ Max   │
-├─────────┼──────┼──────┼───────┼──────┼─────────┼─────────┼───────┤
-│ Latency │ 1 ms │ 4 ms │ 6 ms  │ 6 ms │ 3.92 ms │ 1.15 ms │ 20 ms │
-└─────────┴──────┴──────┴───────┴──────┴─────────┴─────────┴───────┘
-┌───────────┬─────────┬─────────┬─────────┬─────────┬───────────┬──────────┬─────────┐
-│ Stat      │ 1%      │ 2.5%    │ 50%     │ 97.5%   │ Avg       │ Stdev    │ Min     │
-├───────────┼─────────┼─────────┼─────────┼─────────┼───────────┼──────────┼─────────┤
-│ Req/Sec   │ 215,935 │ 215,935 │ 226,559 │ 231,807 │ 226,252.8 │ 2,793.93 │ 215,874 │
-├───────────┼─────────┼─────────┼─────────┼─────────┼───────────┼──────────┼─────────┤
-│ Bytes/Sec │ 30.7 MB │ 30.7 MB │ 32.2 MB │ 32.9 MB │ 32.1 MB   │ 398 kB   │ 30.7 MB │
-└───────────┴─────────┴─────────┴─────────┴─────────┴───────────┴──────────┴─────────┘
+Headlines:
 
-Req/Bytes counts sampled once per second.
-# of samples: 40
+- **Engine beats MoroJS-on-uWS in both profiles**: real-world 102,409 vs
+  101,237 (by a hair — the realistic lead trades within ±2% run-to-run) and
+  pipelined **572,053 vs 520,799 (+9.8%)**.
+- The engine path is **~50% faster than the Node-http path** real-world
+  (102,409 vs 68,163) and ~4.8× pipelined.
+- ² Clustered sits at the same single-box loopback ceiling as the single-thread
+  rows — the load generator competes with the workers for cores. Its number is
+  reported for completeness, not as a measure of clustering.
+- ³ Bun rows: raw `Bun.serve` posts the fastest realistic baseline (107,119)
+  but collapses under pipelining (21,686), and Elysia-on-Bun collapses the same
+  way (18,690) — a runtime-level behavior, and exactly why both profiles are
+  always shown. Elysia's Node adapter costs it ~31% (96,717 → 66,786).
 
-9051k requests in 40.03s, 1.29 GB read
-```
+## vs uWebSockets.js
 
-### MoroJS with Built-in Clustering
-```
-Running 40s test @ http://127.0.0.1:3111
-100 connections with 10 pipelining factor
+uWebSockets.js is currently the fastest HTTP server binding in the Node
+ecosystem, which makes it the yardstick. Best-of-3 on an idle machine,
+bare-vs-bare (no framework on either side; engine repo `bench/raw.mjs`,
+`wrk -t8 -c100 -d15`): **raw @morojs/engine 106,008 req/s · raw
+uWebSockets.js 105,635 req/s.**
 
-┌─────────┬──────┬──────┬───────┬──────┬─────────┬────────┬───────┐
-│ Stat    │ 2.5% │ 50%  │ 97.5% │ 99%  │ Avg     │ Stdev  │ Max   │
-├─────────┼──────┼──────┼───────┼──────┼─────────┼────────┼───────┤
-│ Latency │ 4 ms │ 5 ms │ 5 ms  │ 6 ms │ 4.89 ms │ 0.6 ms │ 41 ms │
-└─────────┴──────┴──────┴───────┴──────┴─────────┴────────┴───────┘
+## Notes
 
-┌───────────┬─────────┬─────────┬─────────┬─────────┬───────────┬──────────┬─────────┐
-│ Stat      │ 1%      │ 2.5%    │ 50%     │ 97.5%   │ Avg       │ Stdev    │ Min     │
-├───────────┼─────────┼─────────┼─────────┼─────────┼───────────┼──────────┼─────────┤
-│ Req/Sec   │ 174,079 │ 174,079 │ 191,743 │ 193,535 │ 190,716.8 │ 3,379.18 │ 173,956 │
-├───────────┼─────────┼─────────┼─────────┼─────────┼───────────┼──────────┼─────────┤
-│ Bytes/Sec │ 32.5 MB │ 32.5 MB │ 35.8 MB │ 36.2 MB │ 35.7 MB   │ 632 kB   │ 32.5 MB │
-└───────────┴─────────┴─────────┴─────────┴─────────┴───────────┴──────────┴─────────┘
-
-Req/Bytes counts sampled once per second.
-# of samples: 40
-
-7630k requests in 40.09s, 1.43 GB read
-```
-
-### MoroJS Single-Threaded
-```
-Running 40s test @ http://127.0.0.1:3110
-100 connections with 10 pipelining factor
-
-┌─────────┬──────┬──────┬───────┬───────┬──────────┬────────┬────────┐
-│ Stat    │ 2.5% │ 50%  │ 97.5% │ 99%   │ Avg      │ Stdev  │ Max    │
-├─────────┼──────┼──────┼───────┼───────┼──────────┼────────┼────────┤
-│ Latency │ 6 ms │ 8 ms │ 17 ms │ 18 ms │ 10.14 ms │ 4.7 ms │ 400 ms │
-└─────────┴──────┴──────┴───────┴───────┴──────────┴────────┴────────┘
-
-┌───────────┬─────────┬─────────┬─────────┬─────────┬─────────┬──────────┬─────────┐
-│ Stat      │ 1%      │ 2.5%    │ 50%     │ 97.5%   │ Avg     │ Stdev    │ Min     │
-├───────────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────┼─────────┤
-│ Req/Sec   │ 86,655  │ 86,655  │ 93,951  │ 97,279  │ 93,992  │ 2,197.97 │ 86,601  │
-├───────────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────┼─────────┤
-│ Bytes/Sec │ 16.2 MB │ 16.2 MB │ 17.6 MB │ 18.2 MB │ 17.6 MB │ 411 kB   │ 16.2 MB │
-└───────────┴─────────┴─────────┴─────────┴─────────┴─────────┴──────────┴─────────┘
-
-Req/Bytes counts sampled once per second.
-# of samples: 40
-
-3761k requests in 40.01s, 703 MB read
-```
-
-## KEY FINDINGS
-
-### uWebSockets.js vs standard Node HTTP (same workload)
-
-1. **Request throughput**
-   - uWebSockets.js: **226,253 req/sec** (avg)
-   - Clustered (standard stack): **190,717 req/sec** (avg)
-   - **Improvement: ~19% higher throughput** with uWebSockets.js vs clustered on this benchmark
-
-2. **Latency**
-   - uWebSockets.js: **3.92ms** average (50th **4ms**)
-   - Clustered: **4.89ms** average (50th **5ms**)
-   - **Improvement: ~20% lower average latency** with uWebSockets.js vs clustered on this run
-
-### Performance Impact of Built-in Clustering
-
-1. **Request Throughput**
-   - Clustered: **190,717 req/sec**
-   - Single: **93,992 req/sec**
-   - **Improvement: ~103% increase** (roughly **2×** throughput vs single on recorded runs)
-
-2. **Latency**
-   - Clustered: **4.89ms** average (50th **5ms**)
-   - Single: **10.14ms** average (50th **8ms**)
-   - **Improvement: ~52% lower average latency** vs single-threaded on this run
-
-3. **Stability (latency stdev)**
-   - Clustered: **0.6ms**
-   - Single: **4.7ms**
-   - **Improvement: ~87% lower** average latency standard deviation under load
-
-## CONFIGURATION
-
-### Enabling Clustering
-Add to your `moro.config.cjs` (or `moro.config.js` in CommonJS projects) or app configuration:
-```javascript
-{
-  performance: {
-    clustering: {
-      enabled: true,
-      workers: 'auto' // or specific number
-    }
-  }
-}
-```
-
-## CONCLUSIONS
-
-1. **uWebSockets.js is Optional Peak Performance**
-   - Substantially higher throughput and lower latency than the clustered standard stack on the synthetic hello-world benchmark
-   - Same Moro API; enable with `server.useUWebSockets: true` and the `uWebSockets.js` dependency
-
-2. **Built-in Clustering is Highly Effective**
-   - Roughly **doubles** throughput vs single-threaded on recorded runs (~191k vs ~94k req/sec)
-   - Cuts average latency vs single-threaded (~4.9ms vs ~10.1ms on these runs)
-   - Much tighter latency standard deviation under load than single-threaded (~0.6ms vs ~4.7ms)
-
-3. **Easy to Enable**
-   - Simple configuration
-   - No manual cluster setup needed
-   - Automatic worker management
-
-4. **Production Ready**
-   - Stable under load
-   - Consistent performance
-   - Low latency variance
+- **The clustered row is the same native engine × 24 SO_REUSEPORT workers**
+  (clustering doesn't change the transport; the engine is the default). Its
+  single-box number structurally understates clustering: the load generator and
+  the workers compete for the same cores over loopback, so it lands at the same
+  ceiling as one worker. Measure clustering from a separate load host.
+- **Pipelining context:** the pipelined ×10 column is a TechEmpower-plaintext-style
+  microbenchmark; real HTTP clients do not pipeline. Both columns are shown so
+  neither story is cherry-picked. The engine's pipelined gain (since 1.1.0) comes from
+  response corking (batch → single write per batch).
+- Loopback + single-box no-pipelining throughput converges near ~100–106k on
+  this hardware regardless of server (verified with wrk, oha, and bombardier) —
+  differences beyond that ceiling only show up in the pipelined profile or on
+  multi-machine setups.
+- Historical autocannon-era results (226k pipelined uWS, 190k clustered, MoroJS
+  ≤1.7.x) were removed 2026-07-10: different tool, different methodology, files
+  that no longer exist in `servers/`. Git history has them.
