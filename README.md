@@ -47,9 +47,17 @@ Node v24.11.0, Apple M2 Ultra. Full table:
 
 | Server | no pipelining | pipelined ×10 (microbench) |
 |--------|---------------|----------------------------|
+| raw @morojs/engine (baseline, no framework) | 105,974 | 663,735 |
+| MoroJS + @morojs/engine (clustered, npm) | 103,971 | 584,016 |
 | **MoroJS + @morojs/engine** _(default, npm)_ | **102,409** | **572,053** |
 | MoroJS + uWebSockets.js (npm) | 101,237 | 520,799 |
 | MoroJS (single thread, node engine, npm) | 68,163 | 119,570 |
+
+The clustered row is the same native engine across 24 SO_REUSEPORT workers
+(2051 MB RSS); on a single box the load generator competes with the workers for
+cores, so it lands at the same loopback ceiling as one thread — reported for
+completeness, not as a measure of clustering (see
+[VERIFIED_RESULTS.md](VERIFIED_RESULTS.md)).
 
 **Beats MoroJS-on-uWS in both profiles** — realistic by a hair (the lead
 trades inside ±2% across sessions) and **pipelined every round** (+9.8% in
