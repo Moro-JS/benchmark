@@ -15,6 +15,7 @@ idle machine (load < 3 at start):
 
 | Server | Req/sec (no pipelining) | Req/sec (pipelined ×10) | Latency avg | Latency p99 | RSS under load |
 |--------|------------------------|--------------------------|-------------|-------------|----------------|
+| raw @morojs/engine (baseline, no framework) | 105,974 | 663,735 | 0.9 ms | 1.8 ms | 72 MB |
 | MoroJS + @morojs/engine (clustered, npm)² | 103,971 | 584,016 | 0.9 ms | 1.6 ms | 2051 MB |
 | raw uWebSockets.js (baseline, no framework) | 103,744 | 647,530 | 0.9 ms | 1.7 ms | 53 MB |
 | **MoroJS + @morojs/engine (npm)** _(default)_ | **102,409** | **572,053** | **0.9 ms** | 1.6 ms | 230 MB |
@@ -46,10 +47,14 @@ Headlines:
 ## vs uWebSockets.js
 
 uWebSockets.js is currently the fastest HTTP server binding in the Node
-ecosystem, which makes it the yardstick. Best-of-3 on an idle machine,
-bare-vs-bare (no framework on either side; engine repo `bench/raw.mjs`,
-`wrk -t8 -c100 -d15`): **raw @morojs/engine 106,008 req/s · raw
-uWebSockets.js 105,635 req/s.**
+ecosystem, which makes it the yardstick. Bare-vs-bare (no framework on either
+side), alternating best-of-3 rounds on an idle machine, the raw engine leads
+on average and on peak in **both profiles**:
+
+**realistic — 106,008 vs 105,635 req/s · pipelined ×10 — 663,735 vs 642,836
+req/s** (rounds trade within a few percent; the engine took 2 of 3 in each
+profile). The gap between raw uWS and MoroJS's full-framework rows in the
+table above is framework cost, not engine cost.
 
 ## Notes
 

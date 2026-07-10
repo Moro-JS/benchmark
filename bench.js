@@ -129,6 +129,7 @@ const TARGETS = [
   // weakness (framework-independent) is exactly why both profiles are shown.
   { key: 'elysia-bun', name: 'Elysia (Bun)', file: 'servers/elysia-bun-server.js', port: 3126, runtime: 'bun' },
   { key: 'raw-bun', name: 'raw Bun.serve (baseline)', file: 'servers/raw-bun-server.js', port: 3127, runtime: 'bun' },
+  { key: 'raw-engine', name: 'raw @morojs/engine (baseline)', file: 'servers/raw-engine-server.js', port: 3128 },
   { key: 'raw-uws', name: 'raw uWebSockets.js (baseline)', file: 'servers/raw-uws-server.js', port: 3121 },
   { key: 'uws', name: 'MoroJS + uWebSockets.js (npm)', file: 'servers/moro-uws-server.js', port: 3112 },
   { key: 'uws-local', name: 'MoroJS + uWebSockets.js (LOCAL build)', file: 'servers/moro-uws-server.js', port: 3114, env: { MORO_PKG: 'moro-local' }, requiresPackage: 'moro-local' },

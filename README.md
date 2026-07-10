@@ -53,8 +53,9 @@ Node v24.11.0, Apple M2 Ultra. Full table:
 
 **Beats MoroJS-on-uWS in both profiles** — realistic by a hair (the lead
 trades inside ±2% across sessions) and **pipelined every round** (+9.8% in
-the publication run). Bare-vs-bare, best-of-3 on an idle machine: **raw engine
-106,008 req/s · raw uWebSockets.js 105,635** (see
+the publication run). Bare-vs-bare on an idle machine the raw engine also
+leads both profiles on average and peak: **106,008 vs 105,635 realistic ·
+663,735 vs 642,836 pipelined** (see
 [VERIFIED_RESULTS.md](VERIFIED_RESULTS.md)).
 
 ---
