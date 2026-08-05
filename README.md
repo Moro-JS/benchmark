@@ -48,6 +48,19 @@ the **published npm packages** on every push and weekly in CI — raw
 locally in seconds; see [conformance/README.md](conformance/README.md)
 for the setup and why it's structured to leave no room for doubt.
 
+## Pinned-core profile (Linux)
+
+For the strictest single-thread comparison — server hard-pinned to one
+dedicated core it fully saturates, load generator pinned to different
+cores `npm run bench:pinned` runs raw `@morojs/engine` vs raw
+uWebSockets.js under `taskset` on Linux (via Docker from any host), with
+both packages installed fresh from their registries and affinity +
+saturation receipts printed inline. Across independent sessions on
+2026-08-05: plain throughput is **parity within noise** (the winner flips
+between sessions), while pipelined ×10 is an **engine win in every run,
++13–19%**; details, results, and honest limits in
+[pinned/README.md](pinned/README.md).
+
 ## Results
 
 ### Engine era (MoroJS 1.8.0 / @morojs/engine 1.1.x) — publication run

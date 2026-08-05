@@ -35,7 +35,8 @@
     "bench:ab-uws": "node bench.js uws uws-local",
     "bench:ab-engine": "node bench.js engine engine-local",
     "bench:engine-vs-uws": "node bench.js engine-local uws-local --pipelined",
-    "h1spec": "bash conformance/run.sh"
+    "h1spec": "bash conformance/run.sh",
+    "bench:pinned": "bash pinned/run.sh"
   },
   "dependencies": {
     "@elysiajs/node": "^1.4.5",
