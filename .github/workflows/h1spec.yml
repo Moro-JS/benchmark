@@ -1,0 +1,39 @@
+name: h1spec conformance
+
+# HTTP/1.1 spec compliance of @morojs/engine, verified with uNetworking's
+# h1spec suite (unmodified, pinned in conformance/run.sh). Both packages are
+# installed fresh from the npm registry on every run — the lockfile is not
+# committed — so a green badge always describes the published packages,
+# not a local build.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Weekly, so new engine/framework releases on npm get re-verified
+    # without anyone having to remember to push.
+    - cron: '0 6 * * 1'
+
+jobs:
+  h1spec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install published packages from npm
+        run: npm install --no-audit --no-fund
+
+      - name: Show exactly what is being tested
+        run: npm ls @morojs/engine @morojs/moro
+
+      - name: Run h1spec against raw engine + MoroJS-on-engine
+        run: bash conformance/run.sh

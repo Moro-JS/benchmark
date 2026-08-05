@@ -42,3 +42,7 @@ pids/
 # Temporary files
 tmp/
 temp/ 
+# h1spec runtime clone (unlicensed upstream - never vendor)
+conformance/h1spec/
+# local deno used to run h1spec's test driver
+conformance/deno/

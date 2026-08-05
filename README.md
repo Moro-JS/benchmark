@@ -1,5 +1,7 @@
 # MoroJS Performance Benchmarks
 
+[![h1spec conformance](https://github.com/Moro-JS/benchmark/actions/workflows/h1spec.yml/badge.svg)](https://github.com/Moro-JS/benchmark/actions/workflows/h1spec.yml)
+
 **MoroJS adds near-zero framework overhead — and since 1.8.0 it ships its own native C++ engine (`@morojs/engine`) as the default transport, which meets-or-beats uWebSockets.js in both the realistic and pipelined profiles on the same hardware. The node-http and uWS paths remain available (`server.engine: 'node' | 'uws'`); you pay for the transport you choose, not for the framework on top of it.**
 
 Every number in this repo is reproducible with one command, and this README
@@ -34,6 +36,17 @@ npm run bench:uws -- --pipelined
 Each run boots the server, waits for readiness, idles briefly, runs the load
 generator (a separate native process), samples memory, tears down, cools
 down, and prints a paste-ready markdown table. No second terminal, ever.
+
+## HTTP/1.1 conformance
+
+Fast is worthless if the parser cuts corners. [`conformance/`](conformance/)
+runs the uWebSockets.js team's own 33-test
+[h1spec](https://github.com/uNetworking/h1spec) compliance suite against
+the **published npm packages** on every push and weekly in CI — raw
+`@morojs/engine` and the full framework on top of it both score **33/33**
+(uWS scores 33/33, stock Node 32/33). `npm run h1spec` reproduces it
+locally in seconds; see [conformance/README.md](conformance/README.md)
+for the setup and why it's structured to leave no room for doubt.
 
 ## Results
 
