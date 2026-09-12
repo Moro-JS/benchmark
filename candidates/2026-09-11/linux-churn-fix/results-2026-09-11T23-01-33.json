@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "date": "2026-09-11T23:01:33.531Z",
+  "profileLine": "-c 100 -d 15 | no pipelining [wrk] + keep-alive off (conn/req) [wrk] | best of 2 runs | node v24.21.0 | linux/arm64",
+  "profiles": [
+    {
+      "label": "no pipelining",
+      "p": 1,
+      "rate": 0,
+      "keepalive": true,
+      "generator": "wrk"
+    },
+    {
+      "label": "keep-alive off (conn/req)",
+      "p": 1,
+      "rate": 0,
+      "keepalive": false,
+      "generator": "wrk"
+    }
+  ],
+  "node": "v24.21.0",
+  "platform": "linux",
+  "arch": "arm64",
+  "cpu": "unknown",
+  "moroBuilds": "npm @morojs/moro@1.8.7 | npm @morojs/engine@1.1.5 | local moro-local@1.8.9 (/work/MoroJS) | local engine-local@1.1.5 @ e912aac+uncommitted (/src/engine/packages/engine)",
+  "duration": 15,
+  "connections": 100,
+  "runs": 2,
+  "quick": false,
+  "rows": [
+    {
+      "name": "Elysia (Bun)",
+      "key": "elysia-bun",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 256159.32,
+          "latAvgMs": 0.39338,
+          "latP99Ms": 1.08,
+          "cpuUsPerReq": 4.110599426222367,
+          "cpuPct": 106,
+          "bytesPerResp": 138.99962073903407,
+          "requestsTotal": 3868049,
+          "errors": 0,
+          "non2xx": 0,
+          "generator": "wrk",
+          "runs": [
+            {
+              "reqSec": 245019.37,
+              "latAvgMs": 0.41341,
+              "latP99Ms": 1.21,
+              "cpuUsPerReq": 4.31119532282609,
+              "cpuPct": 106.33333333333333,
+              "bytesPerResp": 138.99972907853945,
+              "requestsTotal": 3699670,
+              "errors": 0,
+              "non2xx": 0
+            },
+            {
+              "reqSec": 256159.32,
+              "latAvgMs": 0.39338,
+              "latP99Ms": 1.08,
+              "cpuUsPerReq": 4.110599426222367,
+              "cpuPct": 106,
+              "bytesPerResp": 138.99962073903407,
+              "requestsTotal": 3868049,
+              "errors": 0,
+              "non2xx": 0
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 115167.77,
+          "latAvgMs": 0.8291799999999999,
+          "latP99Ms": 1.55,
+          "cpuUsPerReq": 8.846093492689471,
+          "cpuPct": 102.60000000000001,
+          "bytesPerResp": 138.9983952416179,
+          "requestsTotal": 1739751,
+          "errors": 1739746,
+          "non2xx": 0,
+          "generator": "wrk",
+          "runs": [
+            {
+              "reqSec": 115167.77,
+              "latAvgMs": 0.8291799999999999,
+              "latP99Ms": 1.55,
+              "cpuUsPerReq": 8.846093492689471,
+              "cpuPct": 102.60000000000001,
+              "bytesPerResp": 138.9983952416179,
+              "requestsTotal": 1739751,
+              "errors": 1739746,
+              "non2xx": 0
+            },
+            {
+              "reqSec": 114234.36,
+              "latAvgMs": 0.83651,
+              "latP99Ms": 1.56,
+              "cpuUsPerReq": 8.92729899673612,
+              "cpuPct": 102.73333333333335,
+              "bytesPerResp": 138.9988913696597,
+              "requestsTotal": 1726166,
+              "errors": 1726162,
+              "non2xx": 0
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.39338,
+      "latencyP99": 1.08,
+      "cpuUsPerReq": 4.110599426222367,
+      "cpuPct": 106,
+      "bytesPerResp": 138.99962073903407,
+      "rssMb": 476,
+      "errors": 1739746,
+      "non2xx": 0
+    },
+    {
+      "name": "raw Bun.serve (baseline)",
+      "key": "raw-bun",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 261969.26,
+          "latAvgMs": 0.3793,
+          "latP99Ms": 0.834,
+          "cpuUsPerReq": 3.9286800469317993,
+          "cpuPct": 103.60000000000001,
+          "bytesPerResp": 125.00117608601838,
+          "requestsTotal": 3955527,
+          "errors": 0,
+          "non2xx": 0,
+          "generator": "wrk",
+          "runs": [
+            {
+              "reqSec": 257987.73,
+              "latAvgMs": 0.38583999999999996,
+              "latP99Ms": 0.88,
+              "cpuUsPerReq": 3.9866574046834624,
+              "cpuPct": 103.53333333333335,
+              "bytesPerResp": 125.00024974496174,
+              "requestsTotal": 3895494,
+              "errors": 0,
+              "non2xx": 0
+            },
+            {
+              "reqSec": 261969.26,
+              "latAvgMs": 0.3793,
+              "latP99Ms": 0.834,
+              "cpuUsPerReq": 3.9286800469317993,
+              "cpuPct": 103.60000000000001,
+              "bytesPerResp": 125.00117608601838,
+              "requestsTotal": 3955527,
+              "errors": 0,
+              "non2xx": 0
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 116987.73,
+          "latAvgMs": 0.81429,
+          "latP99Ms": 1.33,
+          "cpuUsPerReq": 8.62105052365528,
+          "cpuPct": 101.6,
+          "bytesPerResp": 124.99755085231868,
+          "requestsTotal": 1767766,
+          "errors": 1767762,
+          "non2xx": 0,
+          "generator": "wrk",
+          "runs": [
+            {
+              "reqSec": 116987.73,
+              "latAvgMs": 0.81429,
+              "latP99Ms": 1.33,
+              "cpuUsPerReq": 8.62105052365528,
+              "cpuPct": 101.6,
+              "bytesPerResp": 124.99755085231868,
+              "requestsTotal": 1767766,
+              "errors": 1767762,
+              "non2xx": 0
+            },
+            {
+              "reqSec": 116299.72,
+              "latAvgMs": 1.02,
+              "latP99Ms": 1.55,
+              "cpuUsPerReq": 8.67768877389496,
+              "cpuPct": 101.6,
+              "bytesPerResp": 125.00078085533315,
+              "requestsTotal": 1756228,
+              "errors": 1756226,
+              "non2xx": 0
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.3793,
+      "latencyP99": 0.834,
+      "cpuUsPerReq": 3.9286800469317993,
+      "cpuPct": 103.60000000000001,
+      "bytesPerResp": 125.00117608601838,
+      "rssMb": 417,
+      "errors": 1767762,
+      "non2xx": 0
+    }
+  ]
+}

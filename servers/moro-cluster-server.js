@@ -9,6 +9,8 @@
 // published run documents exactly what was active.
 process.env.NODE_ENV = 'production';
 
+import { isMainThread, threadId } from 'node:worker_threads';
+
 // MORO_PKG selects which build to benchmark: '@morojs/moro' (published,
 // default) or 'moro-local' (symlink to the sibling MoroJS working tree,
 // created via `npm run local:link`). The bench runner sets this for the
@@ -41,8 +43,41 @@ app.get('/string', function (_req, _res) {
   _res.end('{ hello: "world" }');
 });
 
+// Identity of whichever worker answered: lets the primary (and a reader of
+// the published table) state whether this cluster ran worker PROCESSES
+// (distinct pids) or worker THREADS (one pid, distinct threadIds). MoroJS
+// picks the transport itself; nothing here configures it.
+app.get('/whoami', () => {
+  return { pid: process.pid, threadId, isMainThread };
+});
+
+// Probe the cluster from the outside: several connection-per-request fetches
+// land on different workers, and the answers reveal the transport.
+async function describeClusterTransport(host, port) {
+  const seenPids = new Set();
+  const seenThreads = new Set();
+  for (let i = 0; i < 16; i++) {
+    try {
+      const res = await fetch(`http://${host}:${port}/whoami`, { headers: { connection: 'close' } });
+      const who = await res.json();
+      seenPids.add(who.pid);
+      seenThreads.add(who.threadId);
+    } catch {
+      // worker still booting - the sample is best effort
+    }
+  }
+  if (seenPids.size === 0) return 'unknown (no worker answered)';
+  const threads = seenPids.size === 1 && seenPids.has(process.pid);
+  return threads
+    ? `worker threads (1 process, ${seenThreads.size} thread${seenThreads.size === 1 ? '' : 's'} answered)`
+    : `worker processes (${seenPids.size} pid${seenPids.size === 1 ? '' : 's'} answered)`;
+}
+
 app.listen(() => {
-  setTimeout(() => {
+  // In cluster mode the listen callback runs in the primary; guard anyway so
+  // a worker never prints the sanity block N times
+  if (!isMainThread) return;
+  setTimeout(async () => {
     const config = app.config;
     // Benchmark sanity: every per-request feature must be off/free
     console.log('--- benchmark sanity ---');
@@ -53,6 +88,7 @@ app.listen(() => {
     console.log(`compression (mw):    ${config.performance?.compression?.enabled}`);
     console.log(`cors:                ${config.security?.cors?.enabled}`);
     console.log(`helmet:              ${config.security?.helmet?.enabled}`);
+    console.log(`cluster transport:   ${await describeClusterTransport(config.server.host, config.server.port)}`);
     console.log('------------------------');
     console.log(`MoroJS clustered benchmark server listening on http://${config.server.host}:${config.server.port}`);
     console.log(`Run: autocannon -c 100 -d 40 -p 10 http://${config.server.host}:${config.server.port}`);

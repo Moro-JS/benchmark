@@ -5,6 +5,48 @@
 exact artifacts users get), served by `bench.js` (one server at a time, per-target
 ports, boot sanity asserts the intended engine actually loaded).
 
+## Candidate run 2026-09-11 — engine 1.2.0 / MoroJS 1.9.0 working trees (not yet published)
+
+Not a publication number: the working trees, not npm artifacts. Full table,
+gate output and analysis in [candidates/2026-09-11](candidates/2026-09-11/README.md);
+the baseline it is measured against in [baselines/2026-09-11](baselines/2026-09-11/README.md).
+Same box, harness and flags as the publication run below, plus the new
+profiles (`--rate=50000`, `--keepalive=off`, CPU µs/req, bytes/resp).
+
+| Row (2026-09-11 candidate) | no pipelining | pipelined ×10 | CPU µs/req | RSS |
+|---|---|---|---|---|
+| raw @morojs/engine 1.2.0-candidate | 114,626 | **936,861** | 8.5 | 48 MB |
+| MoroJS 1.9.0-candidate + engine | **115,056** | **926,119** | 8.4 | 68 MB |
+| MoroJS 1.9.0-candidate clustered (worker threads, one process) | 112,596 | 936,765 | 8.7 | **504 MB** |
+| raw @morojs/engine 1.1.5 (npm, same session) | 114,579 | 845,313 | 8.5 | 48 MB |
+| MoroJS 1.8.7 + engine 1.1.5 (npm, same session) | 112,383 | 758,666 | 8.7 | 65 MB |
+| MoroJS 1.8.7 clustered (24 processes, npm, same session) | 113,383 | 728,937 | 8.6 | 1,146 MB |
+| raw uWebSockets.js (same session) | 113,049 | 742,609 | 8.6 | 55 MB |
+| raw Bun.serve (same session) | 108,330 | 32,779 | 9.3 | 37 MB |
+
+The same trees in a dedicated Linux container (kernel 6.12, 8 vCPU, `wrk`
++ `oha`, Bun from its installer) — the comparison the program set out to
+make: MoroJS-on-engine **326,345** plain / **1,460,634** pipelined /
+**107,660** conn/s / **3.1 µs** CPU per request / **77 MB** against raw
+Bun.serve's 272,251 / 44,186 / 110,587 / 3.8 µs / 551 MB, with half Bun's
+p99 at a fixed 20k req/s (1.6 vs 3.2 ms); worker-thread clustering 713,379 /
+4,310,410 in 249 MB. Full table and conditions in
+[candidates/2026-09-11/README.md](candidates/2026-09-11/README.md#linux-in-a-dedicated-container-linux).
+
+Connection churn (keep-alive off, one connection per request), the one cell
+where the morning candidate trailed Bun on macOS, was a FIN-timing bug fixed
+the same day; re-measured, MoroJS-on-engine does **28,306** conn/s on macOS
+against raw Bun's 26,854 (raw engine 27,555 vs 25,310 in a three-run
+head-to-head) and **126,484** on Linux against 116,988 — details in
+[candidates/2026-09-11/README.md](candidates/2026-09-11/README.md#connection-churn-after-the-fin-fix-churn-fix-linux-churn-fix).
+
+What changed between the rows: prepared response templates + V8 fast API
+calls + batched pipelined dispatch on the JS boundary, the `Connection:
+keep-alive` line dropped from HTTP/1.1 responses (149 → 125 bytes/resp), a
+PGO-optimised binary, and worker-thread clustering (the clustered row is one
+process). The headline tables below stay at the published 1.1.5 / 1.8.7
+numbers until the new versions are on npm and re-verified from there.
+
 ## Publication run — full matrix, `-d 40`, best-of-3 (the headline numbers)
 
 Saved by `bench.js --save`: [results-2026-08-03T02-53-28.md](results-2026-08-03T02-53-28.md).

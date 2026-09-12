@@ -27,6 +27,8 @@
     "local:link": "node -e \"const fs=require('fs');const p='node_modules/moro-local';fs.rmSync(p,{recursive:true,force:true});fs.symlinkSync('../../MoroJS',p,'dir');console.log('linked moro-local -> ../MoroJS ('+require('./'+p+'/package.json').version+')')\"",
     "local:unlink": "node -e \"require('fs').rmSync('node_modules/moro-local',{recursive:true,force:true});console.log('moro-local unlinked')\"",
     "local:build": "npm --prefix ../MoroJS run build",
+    "engine:link:local": "node -e \"const fs=require('fs'),p=require('path');const eng=p.resolve('../MoroJS Engine/packages/engine');if(!fs.existsSync(p.join(eng,'index.js')))throw new Error('engine tree not found: '+eng);fs.rmSync('node_modules/engine-local',{recursive:true,force:true});fs.symlinkSync(eng,'node_modules/engine-local','dir');const m=p.resolve('../MoroJS/node_modules/@morojs/engine'),bak=m+'.npm-original';if(fs.existsSync(m)&&!fs.lstatSync(m).isSymbolicLink()){fs.rmSync(bak,{recursive:true,force:true});fs.renameSync(m,bak)}else fs.rmSync(m,{recursive:true,force:true});fs.symlinkSync(eng,m,'dir');console.log('linked engine-local and ../MoroJS/node_modules/@morojs/engine -> '+eng+' ('+require(p.join(eng,'package.json')).version+'; loader falls back to that tree\\'s build/ binaries)')\"",
+    "engine:unlink:local": "node -e \"const fs=require('fs'),p=require('path');fs.rmSync('node_modules/engine-local',{recursive:true,force:true});const m=p.resolve('../MoroJS/node_modules/@morojs/engine'),bak=m+'.npm-original';if(fs.existsSync(m)&&fs.lstatSync(m).isSymbolicLink())fs.rmSync(m);if(fs.existsSync(bak)){fs.renameSync(bak,m);console.log('restored npm @morojs/engine in ../MoroJS')}console.log('engine-local unlinked')\"",
     "bench:single-local": "node bench.js single-local",
     "bench:engine-local": "node bench.js engine-local",
     "bench:uws-local": "node bench.js uws-local",
@@ -35,6 +37,8 @@
     "bench:ab-uws": "node bench.js uws uws-local",
     "bench:ab-engine": "node bench.js engine engine-local",
     "bench:engine-vs-uws": "node bench.js engine-local uws-local --pipelined",
+    "bench:ab-raw-engine": "node bench.js raw-engine raw-engine-local --pipelined",
+    "bench:baseline": "node bench.js raw-engine raw-engine-local engine engine-local cluster cluster-local raw-uws raw-bun elysia-bun --pipelined --rate=50000 --keepalive=off --runs=3 --save",
     "h1spec": "bash conformance/run.sh",
     "bench:pinned": "bash pinned/run.sh"
   },

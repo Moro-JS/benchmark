@@ -63,6 +63,12 @@ between sessions), while pipelined ×10 is an **engine win in every run,
 
 ## Results
 
+> A candidate run of the unreleased engine 1.2.0 / MoroJS 1.9.0 working trees
+> (templates, fast API calls, batched dispatch, PGO, worker-thread clustering)
+> is in [VERIFIED_RESULTS.md](VERIFIED_RESULTS.md#candidate-run-2026-09-11--engine-120--morojs-190-working-trees-not-yet-published)
+> and [candidates/2026-09-11](candidates/2026-09-11/README.md). The tables
+> below stay at the published packages' numbers until those ship.
+
 ### Engine era (MoroJS 1.8.0 / @morojs/engine 1.1.x) — publication run
 
 Verified 2026-07-10 against the **published npm packages** at the publication
@@ -240,8 +246,31 @@ Each of these came from an observed measurement artifact, not theory:
 ### Memory
 
 The RSS column is the server **process tree sampled immediately after load**
-— not idle memory. The clustered row sums all worker processes. Don't compare
-these values against idle-RSS figures from other sources.
+— not idle memory. A clustered row sums all worker processes; when MoroJS
+clusters with worker *threads* the whole cluster is one process, so that row
+is a single RSS. Don't compare these values against idle-RSS figures from
+other sources.
+
+### CPU per request and bytes per response
+
+Two columns survive a client-bound harness where req/s converges:
+
+- **CPU µs/req** — CPU time (user+system, every thread) the server process
+  tree consumed during the measured run, divided by the requests the generator
+  counted. Lower is better. Read from `/proc/<pid>/stat` on Linux and `ps` on
+  macOS; `-` on Windows.
+- **bytes/resp** — bytes the generator read divided by responses: the wire
+  size of a response, so a header change shows up as a number instead of a
+  guess.
+
+Both come from the no-pipelining profile. `--rate=N` adds a **fixed-rate
+profile** (the generator offers exactly N req/s; the honest comparison is then
+the `p99 @ N/s` column and CPU per request at that load), `--keepalive=off`
+adds a **connection-per-request profile** (what the-benchmarker measures:
+accept + first request), and `--perf` (Linux, needs `perf`) records
+instructions, cycles and syscalls per request for the run window. Each profile
+picks the best generator able to express it; the footer says which.
+`PROFILING.md` covers finding *where* the CPU goes.
 
 ### For publishable numbers
 
@@ -262,6 +291,9 @@ generator + profile + platform — alongside any table.
 | `servers/moro-uws-server.js` | MoroJS over uWebSockets.js (port 3112) |
 | `servers/raw-node-server.js` | Raw `node:http` baseline (port 3120) |
 | `servers/raw-uws-server.js` | Raw uWebSockets.js baseline (port 3121) |
+| `servers/raw-engine-server.js` | Raw `@morojs/engine` baseline (port 3128; `raw-engine-local` = the sibling engine tree's build, port 3130) |
+| `servers/moro-engine-server.js` | MoroJS with `server.engine: 'moro'` forced (port 3117) |
+| `PROFILING.md` | How to find where per-request CPU goes (perf / xctrace / `--cpu-prof`) |
 | `servers/fastify-server.js` | Fastify comparison (port 3122) |
 | `servers/express-server.js` | Express comparison (port 3123) |
 | `servers/koa-server.js` | Koa comparison (port 3124) |
@@ -283,14 +315,28 @@ manual two-terminal testing.
 --connections=100   concurrent connections (raise for a real load rig)
 --pipelined         ALSO run the pipelined x10 microbenchmark (not real-world)
 --pipelining=N      single run at depth N (N=1 realistic; N>1 microbench)
---generator=X       wrk | oha | bombardier | autocannon
+--rate=N            ALSO run a fixed-rate profile at N req/s (latency + CPU at load)
+--keepalive=off     ALSO run a connection-per-request profile (accept cost)
+--perf              Linux: perf stat instructions/cycles/syscalls per request
+--generator=X       wrk | oha | bombardier | autocannon (forced for every profile;
+                    a profile the forced tool cannot express is skipped loudly)
 --settle=3          idle seconds between server boot and first measurement
 --warmup[=5]        opt-in warmup pass before measuring
 --cooldown=8        seconds between targets
---save              write results-<timestamp>.md
+--save              write results-<timestamp>.md AND results-<timestamp>.json
+--baseline=<json>   compare every row/profile against a saved .json (deltas)
+--gate              with --baseline: exit 1 on a regression beyond tolerance
+                    (req/s: the baseline's own run spread, min 2%; p99: 5%;
+                    CPU µs/req: 3%; RSS: 10%)
 ```
 
 Default (no flag): the realistic **no-pipelining** profile only.
+
+Local engine builds: `npm run engine:link:local` points `raw-engine-local`
+(and, through `../MoroJS/node_modules`, the `engine-local` / `cluster-local`
+rows) at the sibling `MoroJS Engine` working tree's `build/` binaries;
+`npm run engine:unlink:local` restores the npm package. `npm run bench:baseline`
+is the full Phase-0 matrix (every profile, best of 3, saved).
 
 ---
 
