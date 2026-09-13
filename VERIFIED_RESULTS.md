@@ -30,7 +30,11 @@ make: MoroJS-on-engine **326,345** plain / **1,460,634** pipelined /
 **107,660** conn/s / **3.1 µs** CPU per request / **77 MB** against raw
 Bun.serve's 272,251 / 44,186 / 110,587 / 3.8 µs / 551 MB, with half Bun's
 p99 at a fixed 20k req/s (1.6 vs 3.2 ms); worker-thread clustering 713,379 /
-4,310,410 in 249 MB. Full table and conditions in
+4,310,410 in 249 MB. raw uWebSockets.js on the same VM (measured a day later
+in `node:24-trixie`, because uWS 20.69's Linux binary needs glibc 2.38):
+258,598 / 1,028,126 / 104,641 / 3.9 µs / 54 MB, so the raw engine is +20%
+plain, +47% pipelined and 18% less CPU per request than bare uWS on Linux
+at RSS parity. Full table and conditions in
 [candidates/2026-09-11/README.md](candidates/2026-09-11/README.md#linux-in-a-dedicated-container-linux).
 
 Connection churn (keep-alive off, one connection per request), the one cell
@@ -39,6 +43,40 @@ the same day; re-measured, MoroJS-on-engine does **28,306** conn/s on macOS
 against raw Bun's 26,854 (raw engine 27,555 vs 25,310 in a three-run
 head-to-head) and **126,484** on Linux against 116,988 — details in
 [candidates/2026-09-11/README.md](candidates/2026-09-11/README.md#connection-churn-after-the-fin-fix-churn-fix-linux-churn-fix).
+Those are wrk numbers, and wrk's keep-alive-off profile penalises servers
+that close without echoing `Connection: close` (Bun and uWS do not echo;
+one wrk read error per connection). Cross-checked with `oha
+--disable-keepalive`, which has no such dependency: on macOS the engine's
+lead over raw Bun is +14% (23,868 vs 20,956 conn/s, framework) and +15%
+(raw); on the Linux VM the engine rows and Bun are within the box's
+pass-to-pass noise (framework 99,945 / 98,757 against Bun's 101,594 /
+84,450 over two passes) with less CPU per connection, so the Linux churn
+cell is parity until a bare-metal run says otherwise.
+
+**Every generator, both platforms (2026-09-13,
+[candidates/2026-09-13/README.md](candidates/2026-09-13/README.md)).** wrk,
+oha, bombardier and autocannon were run against MoroJS-on-engine, the raw
+engine, raw Bun.serve and raw uWebSockets.js on macOS and, in three
+rotated-order rounds, in the Linux container. Two things had to be fixed
+first: the engine now performs the RFC 9112 §9.6 lingering close (a client
+that writes its next request before it has seen the server's FIN was being
+answered with a RST; autocannon does this and ran at a quarter speed with one
+error per connection), and the harness's bombardier and autocannon
+"keep-alive off" profiles were not measuring connections at all (bombardier's
+`-a` is a no-op for its client, and autocannon always sends its own
+`Connection: keep-alive`; uWS and Bun ignore the appended `close` and were
+serving ~2,800 requests per connection). With that corrected: on macOS the
+framework beats Bun in every cell of every generator except RSS (plain
+throughput +4% to +16%, CPU per request 10–25% lower, churn +5% to +14%,
+autocannon plain +4% over three alternating rounds), and the raw engine ties
+or beats bare uWS everywhere. On Linux the framework beats Bun on every plain,
+CPU and p99 cell under every generator (up to +54% throughput, 18–41% less
+CPU, half the p99 at 20k req/s); churn against Bun is parity within the VM's
+±10% spread under oha and 7% behind under bombardier, and uWS leads both
+engine rows on connections per second by 3–10% because it lets the client
+close first and hold the TIME_WAIT (and, under wrk, ends its connections with
+resets), a policy the engine deliberately does not copy. The Linux VM cannot
+resolve differences under 10%, which is stated wherever it applies.
 
 What changed between the rows: prepared response templates + V8 fast API
 calls + batched pipelined dispatch on the JS boundary, the `Connection:

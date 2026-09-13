@@ -1,0 +1,563 @@
+{
+  "schema": 1,
+  "date": "2026-09-13T15:50:11.967Z",
+  "profileLine": "-c 100 -d 10 | no pipelining [bombardier] + fixed rate 20,000 req/s [bombardier] + keep-alive off (conn/req) [bombardier] | best of 2 runs | node v24.19.0 | linux/arm64",
+  "profiles": [
+    {
+      "label": "no pipelining",
+      "p": 1,
+      "rate": 0,
+      "keepalive": true,
+      "generator": "bombardier"
+    },
+    {
+      "label": "fixed rate 20,000 req/s",
+      "p": 1,
+      "rate": 20000,
+      "keepalive": true,
+      "generator": "bombardier"
+    },
+    {
+      "label": "keep-alive off (conn/req)",
+      "p": 1,
+      "rate": 0,
+      "keepalive": false,
+      "generator": "bombardier"
+    }
+  ],
+  "node": "v24.19.0",
+  "platform": "linux",
+  "arch": "arm64",
+  "cpu": "unknown",
+  "moroBuilds": "npm @morojs/moro@1.8.7 | npm @morojs/engine@1.1.5 | local moro-local@1.8.9 (/work/MoroJS) | local engine-local@1.1.5 @ d173350+uncommitted (/src/engine/packages/engine)",
+  "duration": 10,
+  "connections": 100,
+  "runs": 2,
+  "quick": false,
+  "rows": [
+    {
+      "name": "MoroJS + @morojs/engine (LOCAL build)",
+      "key": "engine-local",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 241927.2934459714,
+          "latAvgMs": 0.41113756982316424,
+          "latP99Ms": 0.864,
+          "cpuUsPerReq": 4.084386399489369,
+          "cpuPct": 98.8,
+          "bytesPerResp": 125,
+          "requestsTotal": 2418968,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 241927.2934459714,
+              "latAvgMs": 0.41113756982316424,
+              "latP99Ms": 0.864,
+              "cpuUsPerReq": 4.084386399489369,
+              "cpuPct": 98.8,
+              "bytesPerResp": 125,
+              "requestsTotal": 2418968,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 226366.3893927656,
+              "latAvgMs": 0.4397314883857231,
+              "latP99Ms": 0.905,
+              "cpuUsPerReq": 4.344883888171617,
+              "cpuPct": 98.3,
+              "bytesPerResp": 125,
+              "requestsTotal": 2262431,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 19948.882950988092,
+          "latAvgMs": 0.9491956106010393,
+          "latP99Ms": 2.689,
+          "cpuUsPerReq": 13.31637914635001,
+          "cpuPct": 26.6,
+          "bytesPerResp": 125,
+          "requestsTotal": 199754,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 19948.882950988092,
+              "latAvgMs": 0.9491956106010393,
+              "latP99Ms": 2.689,
+              "cpuUsPerReq": 13.31637914635001,
+              "cpuPct": 26.6,
+              "bytesPerResp": 125,
+              "requestsTotal": 199754,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 20063.946873817797,
+              "latAvgMs": 0.9789692895874459,
+              "latP99Ms": 2.823,
+              "cpuUsPerReq": 13.743471850870836,
+              "cpuPct": 27.500000000000004,
+              "bytesPerResp": 125,
+              "requestsTotal": 200095,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 80559.23440534859,
+          "latAvgMs": 1.2382425861356299,
+          "latP99Ms": 1.924,
+          "cpuUsPerReq": 12.350751409785518,
+          "cpuPct": 99.5,
+          "bytesPerResp": 144,
+          "requestsTotal": 805619,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 80369.07414721993,
+              "latAvgMs": 1.2420562594225288,
+              "latP99Ms": 1.973,
+              "cpuUsPerReq": 12.36210895337879,
+              "cpuPct": 99.3,
+              "bytesPerResp": 144,
+              "requestsTotal": 803261,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 80559.23440534859,
+              "latAvgMs": 1.2382425861356299,
+              "latP99Ms": 1.924,
+              "cpuUsPerReq": 12.350751409785518,
+              "cpuPct": 99.5,
+              "bytesPerResp": 144,
+              "requestsTotal": 805619,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.41113756982316424,
+      "latencyP99": 0.864,
+      "cpuUsPerReq": 4.084386399489369,
+      "cpuPct": 98.8,
+      "bytesPerResp": 125,
+      "rssMb": 85,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "raw Bun.serve (baseline)",
+      "key": "raw-bun",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 187286.4702052081,
+          "latAvgMs": 0.5322444370898459,
+          "latP99Ms": 1.255,
+          "cpuUsPerReq": 5.421491562469591,
+          "cpuPct": 101.4,
+          "bytesPerResp": 125,
+          "requestsTotal": 1870334,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 187286.4702052081,
+              "latAvgMs": 0.5322444370898459,
+              "latP99Ms": 1.255,
+              "cpuUsPerReq": 5.421491562469591,
+              "cpuPct": 101.4,
+              "bytesPerResp": 125,
+              "requestsTotal": 1870334,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 184378.49772439225,
+              "latAvgMs": 0.5404579131067275,
+              "latP99Ms": 1.245,
+              "cpuUsPerReq": 5.471540390607189,
+              "cpuPct": 100.8,
+              "bytesPerResp": 125,
+              "requestsTotal": 1842260,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 20072.25270653731,
+          "latAvgMs": 1.0162064921099359,
+          "latP99Ms": 3,
+          "cpuUsPerReq": 15.254957861304923,
+          "cpuPct": 30.5,
+          "bytesPerResp": 125,
+          "requestsTotal": 199935,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 20006.251792079816,
+              "latAvgMs": 1.0278930493060319,
+              "latP99Ms": 3.109,
+              "cpuUsPerReq": 15.666214532040662,
+              "cpuPct": 31.3,
+              "bytesPerResp": 125,
+              "requestsTotal": 199793,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 20072.25270653731,
+              "latAvgMs": 1.0162064921099359,
+              "latP99Ms": 3,
+              "cpuUsPerReq": 15.254957861304923,
+              "cpuPct": 30.5,
+              "bytesPerResp": 125,
+              "requestsTotal": 199935,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 85525.5269826326,
+          "latAvgMs": 1.167068643351799,
+          "latP99Ms": 2.612,
+          "cpuUsPerReq": 11.350844058125682,
+          "cpuPct": 97,
+          "bytesPerResp": 125,
+          "requestsTotal": 854562,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 85525.5269826326,
+              "latAvgMs": 1.167068643351799,
+              "latP99Ms": 2.612,
+              "cpuUsPerReq": 11.350844058125682,
+              "cpuPct": 97,
+              "bytesPerResp": 125,
+              "requestsTotal": 854562,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 84159.01148167606,
+              "latAvgMs": 1.1858446211775229,
+              "latP99Ms": 2.646,
+              "cpuUsPerReq": 11.536412247150388,
+              "cpuPct": 97,
+              "bytesPerResp": 125,
+              "requestsTotal": 840816,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.5322444370898459,
+      "latencyP99": 1.255,
+      "cpuUsPerReq": 5.421491562469591,
+      "cpuPct": 101.4,
+      "bytesPerResp": 125,
+      "rssMb": 39,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "raw @morojs/engine (LOCAL build)",
+      "key": "raw-engine-local",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 222505.1852974074,
+          "latAvgMs": 0.44705613461557475,
+          "latP99Ms": 0.919,
+          "cpuUsPerReq": 4.404371653464039,
+          "cpuPct": 98,
+          "bytesPerResp": 125,
+          "requestsTotal": 2225062,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 221090.91919712425,
+              "latAvgMs": 0.44989777578529705,
+              "latP99Ms": 0.918,
+              "cpuUsPerReq": 4.433319927818314,
+              "cpuPct": 98,
+              "bytesPerResp": 125,
+              "requestsTotal": 2210533,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 222505.1852974074,
+              "latAvgMs": 0.44705613461557475,
+              "latP99Ms": 0.919,
+              "cpuUsPerReq": 4.404371653464039,
+              "cpuPct": 98,
+              "bytesPerResp": 125,
+              "requestsTotal": 2225062,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 20067.41142005274,
+          "latAvgMs": 0.7924706664733265,
+          "latP99Ms": 2.036,
+          "cpuUsPerReq": 11.45040076402674,
+          "cpuPct": 22.900000000000002,
+          "bytesPerResp": 125,
+          "requestsTotal": 199993,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 20067.41142005274,
+              "latAvgMs": 0.7924706664733265,
+              "latP99Ms": 2.036,
+              "cpuUsPerReq": 11.45040076402674,
+              "cpuPct": 22.900000000000002,
+              "bytesPerResp": 125,
+              "requestsTotal": 199993,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 20068.20622259401,
+              "latAvgMs": 0.7773852877676269,
+              "latP99Ms": 2.053,
+              "cpuUsPerReq": 11.094896347680066,
+              "cpuPct": 22.2,
+              "bytesPerResp": 125,
+              "requestsTotal": 200092,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 79741.50734311757,
+          "latAvgMs": 1.2521464233475836,
+          "latP99Ms": 2.118,
+          "cpuUsPerReq": 12.454722938912848,
+          "cpuPct": 99.2,
+          "bytesPerResp": 144,
+          "requestsTotal": 796485,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 79741.50734311757,
+              "latAvgMs": 1.2521464233475836,
+              "latP99Ms": 2.118,
+              "cpuUsPerReq": 12.454722938912848,
+              "cpuPct": 99.2,
+              "bytesPerResp": 144,
+              "requestsTotal": 796485,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 78722.3269539737,
+              "latAvgMs": 1.2670136092960869,
+              "latP99Ms": 2.182,
+              "cpuUsPerReq": 12.613431971302855,
+              "cpuPct": 99.3,
+              "bytesPerResp": 144,
+              "requestsTotal": 787256,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.44705613461557475,
+      "latencyP99": 0.919,
+      "cpuUsPerReq": 4.404371653464039,
+      "cpuPct": 98,
+      "bytesPerResp": 125,
+      "rssMb": 55,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "raw uWebSockets.js (baseline)",
+      "key": "raw-uws",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 237861.73364838285,
+          "latAvgMs": 0.4181676015082438,
+          "latP99Ms": 0.875,
+          "cpuUsPerReq": 4.131656516858041,
+          "cpuPct": 98.3,
+          "bytesPerResp": 142,
+          "requestsTotal": 2379191,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 235615.33182370817,
+              "latAvgMs": 0.4227821289799498,
+              "latP99Ms": 0.882,
+              "cpuUsPerReq": 4.172870731093751,
+              "cpuPct": 98.2,
+              "bytesPerResp": 142,
+              "requestsTotal": 2353296,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 237861.73364838285,
+              "latAvgMs": 0.4181676015082438,
+              "latP99Ms": 0.875,
+              "cpuUsPerReq": 4.131656516858041,
+              "cpuPct": 98.3,
+              "bytesPerResp": 142,
+              "requestsTotal": 2379191,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 20070.070925644617,
+          "latAvgMs": 0.680800305837906,
+          "latP99Ms": 1.849,
+          "cpuUsPerReq": 10.044676321549579,
+          "cpuPct": 20.1,
+          "bytesPerResp": 142,
+          "requestsTotal": 200106,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 20275.779916647687,
+              "latAvgMs": 0.6796800993679318,
+              "latP99Ms": 1.875,
+              "cpuUsPerReq": 9.866674680209554,
+              "cpuPct": 19.7,
+              "bytesPerResp": 142,
+              "requestsTotal": 199662,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 20070.070925644617,
+              "latAvgMs": 0.680800305837906,
+              "latP99Ms": 1.849,
+              "cpuUsPerReq": 10.044676321549579,
+              "cpuPct": 20.1,
+              "bytesPerResp": 142,
+              "requestsTotal": 200106,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 95718.28358945671,
+          "latAvgMs": 1.0424749076518807,
+          "latP99Ms": 2.1,
+          "cpuUsPerReq": 10.295743938054114,
+          "cpuPct": 98.5,
+          "bytesPerResp": 142,
+          "requestsTotal": 956706,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {},
+          "generator": "bombardier",
+          "runs": [
+            {
+              "reqSec": 94123.71915374442,
+              "latAvgMs": 1.0599578076296663,
+              "latP99Ms": 2.147,
+              "cpuUsPerReq": 10.4928113079975,
+              "cpuPct": 98.7,
+              "bytesPerResp": 142,
+              "requestsTotal": 940644,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            },
+            {
+              "reqSec": 95718.28358945671,
+              "latAvgMs": 1.0424749076518807,
+              "latP99Ms": 2.1,
+              "cpuUsPerReq": 10.295743938054114,
+              "cpuPct": 98.5,
+              "bytesPerResp": 142,
+              "requestsTotal": 956706,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {}
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.4181676015082438,
+      "latencyP99": 0.875,
+      "cpuUsPerReq": 4.131656516858041,
+      "cpuPct": 98.3,
+      "bytesPerResp": 142,
+      "rssMb": 54,
+      "errors": 0,
+      "non2xx": 0
+    }
+  ]
+}

@@ -221,7 +221,27 @@ Each of these came from an observed measurement artifact, not theory:
    port is already occupied — an orphaned or foreign server there would be
    silently benchmarked instead of a fresh one (this exact failure produced a
    bogus 11k req/s reading during development: the guard exists because of
-   it).
+   it). The guard is a plain TCP connect, not `lsof`: inside a container
+   image without `lsof` the old shell-out was a silent no-op.
+9. **The gate judges candidate rows against the run's own reference rows.**
+   A baseline captured in the morning and a candidate measured in the
+   evening differ by more than the candidate: the first gate flagged 15
+   "regressions" in fixed-rate p99, CPU/req and RSS cells while raw Bun and
+   raw uWS, whose bits had not changed, showed the same +10–25% moves. Rows
+   whose bits are identical in both runs (published npm packages,
+   third-party runtimes: everything that is not a `LOCAL build` row) are
+   the yardstick: per metric and profile the gate takes their median drift
+   (where the box went) and a robust spread (1.4826 × MAD, what an unchanged
+   row does between these two runs), widens every candidate tolerance by the
+   unfavourable part of the median plus the spread, and never gates a
+   reference row itself. The gate never tightens. Without reference rows in
+   the run there is no widening, and a run with fewer than three of them
+   gets no spread estimate. The drift line is printed above the deltas so
+   the widening is visible.
+10. **A server that fails to start says why.** The runner keeps the last 30
+   lines of the server's stderr and prints them with the "skipped" line: a
+   missing native binary or a glibc floor is a fact, not a shrug (this is
+   how the uWS row's `GLIBC_2.38` requirement surfaced).
 
 ### Fairness guarantees
 
@@ -271,6 +291,29 @@ accept + first request), and `--perf` (Linux, needs `perf`) records
 instructions, cycles and syscalls per request for the run window. Each profile
 picks the best generator able to express it; the footer says which.
 `PROFILING.md` covers finding *where* the CPU goes.
+
+One generator caveat for the connection-per-request profile: wrk sends
+`Connection: close` and relies on the server echoing it (RFC 7230 §6.1 says
+a server that will close SHOULD). Servers that close without echoing it
+(Bun.serve and uWebSockets.js do not echo; node:http and @morojs/engine do)
+look keep-alive to wrk, which then writes a second request into the closed
+socket, records one read error per connection and reconnects, so such rows
+carry a `WARNING: N errors` line with N ≈ the request count and a client-side
+penalty the other rows do not pay. For a cross-server churn comparison use
+`--generator=oha` (`oha --disable-keepalive` closes after every response
+regardless of the server's headers) or `--generator=bombardier` (sent with
+`-H 'Connection: close'`, which bombardier's own help names as the way to
+disable keep-alive for its fasthttp client; its `-a` flag left 8.4 requests
+per connection when checked against a counting server). autocannon cannot
+run this profile and the runner skips it with the reason: autocannon always
+sends its own `Connection: keep-alive` and appends the user's `close`, and
+RFC 9110 §7.6.1 makes that list contain `close`, so a conforming server
+closes after one response (node:http, @morojs/engine) while uWebSockets.js
+and Bun.serve keep the connection (about 2,800 responses per connection
+measured) — the column would compare header handling, not connection cost.
+Every generator's connection-per-request mode was verified against a
+counting server (requests per accepted connection: wrk 1.00, oha 1.00,
+bombardier with the header 1.00).
 
 ### For publishable numbers
 
@@ -327,7 +370,11 @@ manual two-terminal testing.
 --baseline=<json>   compare every row/profile against a saved .json (deltas)
 --gate              with --baseline: exit 1 on a regression beyond tolerance
                     (req/s: the baseline's own run spread, min 2%; p99: 5%;
-                    CPU µs/req: 3%; RSS: 10%)
+                    CPU µs/req: 3%; RSS: 10%; each widened by the reference
+                    rows' drift, see design decision 9 below)
+--replay=<json>     no benchmarking: reload a saved run and re-run the
+                    comparison/gate against --baseline (gate development,
+                    re-judging an old run with a newer gate)
 ```
 
 Default (no flag): the realistic **no-pipelining** profile only.

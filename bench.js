@@ -75,6 +75,7 @@
 //   size, so header-trim changes are visible instead of inferred.
 
 import { spawn, execSync } from 'node:child_process';
+import net from 'node:net';
 import { writeFileSync, existsSync, readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve as resolvePath } from 'node:path';
@@ -202,6 +203,9 @@ const settleSec = parseInt(flags.settle || (quick ? '1' : '3'), 10);
 const wantPerf = !!flags.perf;
 const gate = !!flags.gate;
 const baselineFile = typeof flags.baseline === 'string' ? flags.baseline : null;
+// --replay=<results.json>: no benchmarking - load a saved run and re-run the
+// table / baseline comparison / gate on it (e.g. after a gate rule changes).
+const replayFile = typeof flags.replay === 'string' ? flags.replay : null;
 if (gate && !baselineFile) {
   console.error('--gate needs --baseline=<results-*.json>');
   process.exit(1);
@@ -285,11 +289,30 @@ function wrkSupportsRate() {
   }
 }
 
+// Connection-per-request support per generator, verified against a counting
+// server (requests per accepted TCP connection):
+//   wrk        Lua `Connection: close`            -> 1.00
+//   oha        --disable-keepalive (client closes) -> 1.00
+//   bombardier -H 'Connection: close'              -> 1.00  (its -a flag is a
+//              no-op for the fasthttp client: 8.4 requests per connection)
+//   autocannon cannot: it always sends its own `Connection: keep-alive` and
+//              APPENDS the user's `connection: close`. RFC 9110 §7.6.1 makes
+//              that list contain `close`, so a conforming server closes
+//              (node:http and @morojs/engine: 1.00) while uWebSockets.js and
+//              Bun.serve keep the connection (~2,800 responses per connection
+//              measured) - the "profile" would measure header handling, not
+//              connection cost. Skipped, with this reason printed.
 const GENERATOR_CAPS = {
   wrk: { pipelining: true, keepaliveOff: true, rate: () => wrkSupportsRate() },
   oha: { pipelining: false, keepaliveOff: true, rate: () => true },
   bombardier: { pipelining: false, keepaliveOff: true, rate: () => true },
-  autocannon: { pipelining: true, keepaliveOff: true, rate: () => true },
+  autocannon: {
+    pipelining: true,
+    keepaliveOff: false,
+    keepaliveOffReason:
+      'autocannon always sends Connection: keep-alive and appends the close header; only servers honouring the close token close per request (engine, node:http), uWS and Bun do not - not comparable',
+    rate: () => true,
+  },
 };
 
 function generatorCanRun(g, profile) {
@@ -298,6 +321,12 @@ function generatorCanRun(g, profile) {
   if (!profile.keepalive && !caps.keepaliveOff) return false;
   if (profile.rate > 0 && !caps.rate()) return false;
   return true;
+}
+
+function generatorSkipReason(g, profile) {
+  const caps = GENERATOR_CAPS[g];
+  if (!profile.keepalive && !caps.keepaliveOff && caps.keepaliveOffReason) return caps.keepaliveOffReason;
+  return null;
 }
 
 const forcedGenerator = typeof flags.generator === 'string' ? flags.generator : null;
@@ -326,8 +355,9 @@ function selectGenerator(profile) {
 for (const profile of profiles) profile.generator = selectGenerator(profile);
 const dropped = profiles.filter(pr => !pr.generator);
 for (const pr of dropped) {
+  const why = forcedGenerator ? generatorSkipReason(forcedGenerator, pr) : null;
   console.warn(
-    `NOTE: no ${forcedGenerator ? `'${forcedGenerator}' ` : ''}generator can run profile '${pr.label}' - skipped`
+    `NOTE: no ${forcedGenerator ? `'${forcedGenerator}' ` : ''}generator can run profile '${pr.label}' - skipped${why ? ` (${why})` : ''}`
   );
 }
 profiles = profiles.filter(pr => pr.generator);
@@ -482,7 +512,10 @@ async function runBombardier(port, durationSec, profile) {
     '-o', 'json',
   ];
   if (profile.rate > 0) cliArgs.push('-r', String(profile.rate));
-  if (!profile.keepalive) cliArgs.push('-a');
+  // bombardier's own words for -a: "Disable HTTP keep-alive. For fasthttp use
+  // -H 'Connection: close'". With -a the fasthttp client kept connections
+  // open (8.4 requests per connection measured); the header gives 1.00.
+  if (!profile.keepalive) cliArgs.push('-H', 'Connection: close');
   cliArgs.push(`http://127.0.0.1:${port}/`);
   const out = await spawnCollect(which('bombardier'), cliArgs);
   const r = JSON.parse(out).result;
@@ -645,18 +678,27 @@ function processTreeCpuMs(pid) {
 // `perf stat` attached to the server tree for the run's duration. Prints
 // "n/a" everywhere else (or when perf is missing / perf_event_paranoid
 // forbids it) rather than failing the run.
-const PERF_EVENTS = [
-  'instructions',
-  'cycles',
-  'syscalls:sys_enter_read',
-  'syscalls:sys_enter_recvfrom',
-  'syscalls:sys_enter_write',
-  'syscalls:sys_enter_writev',
-  'syscalls:sys_enter_sendto',
-  'syscalls:sys_enter_epoll_wait',
-  'syscalls:sys_enter_io_uring_enter',
-  'syscalls:sys_enter_accept4',
-];
+// Hardware counters always; syscall tracepoints only where tracefs exposes
+// them (they need a mounted tracefs and CAP_PERFMON/privileged, and the
+// names differ per arch: arm64 has epoll_pwait, not epoll_wait). An
+// unavailable tracepoint used to fail the whole perf stat, losing the
+// instruction count that is the one VM-noise-resistant number.
+const PERF_HW_EVENTS = ['instructions', 'cycles'];
+const PERF_SYSCALLS = ['read', 'recvfrom', 'write', 'writev', 'sendto', 'epoll_wait', 'epoll_pwait', 'io_uring_enter', 'accept4'];
+let perfEventsResolved = null;
+function perfEvents() {
+  if (perfEventsResolved) return perfEventsResolved;
+  const events = [...PERF_HW_EVENTS];
+  for (const root of ['/sys/kernel/tracing', '/sys/kernel/debug/tracing']) {
+    if (!existsSync(`${root}/events/syscalls`)) continue;
+    for (const name of PERF_SYSCALLS) {
+      if (existsSync(`${root}/events/syscalls/sys_enter_${name}`)) events.push(`syscalls:sys_enter_${name}`);
+    }
+    break;
+  }
+  perfEventsResolved = events;
+  return events;
+}
 function startPerfStat(pid, durationSec) {
   if (!wantPerf) return null;
   if (process.platform !== 'linux' || !which('perf')) {
@@ -665,7 +707,7 @@ function startPerfStat(pid, durationSec) {
   const pids = processTreePids(pid).join(',');
   const child = spawn(
     'perf',
-    ['stat', '-x', ',', '-e', PERF_EVENTS.join(','), '-p', pids, '--', 'sleep', String(durationSec)],
+    ['stat', '-x', ',', '-e', perfEvents().join(','), '-p', pids, '--', 'sleep', String(durationSec)],
     { stdio: ['ignore', 'pipe', 'pipe'] }
   );
   let err = '';
@@ -718,14 +760,20 @@ process.on('SIGTERM', () => {
 process.on('exit', cleanupChildren);
 
 // Refuse to measure a port that is already occupied - a stale server there
-// (wrong version, wrong state) would be benchmarked instead of ours
-function portOccupiedBy(port) {
-  try {
-    const pid = execSync(`lsof -ti :${port}`, { encoding: 'utf8' }).trim().split('\n')[0];
-    return pid || null;
-  } catch {
-    return null; // lsof exits non-zero when the port is free
-  }
+// (wrong version, wrong state) would be benchmarked instead of ours. A plain
+// TCP connect: works wherever Node runs (a container image without lsof used
+// to make this check a silent no-op).
+function portOccupied(port) {
+  return new Promise(resolve => {
+    const s = net.connect({ host: '127.0.0.1', port });
+    const done = v => {
+      s.destroy();
+      resolve(v);
+    };
+    s.once('connect', () => done(true));
+    s.once('error', () => done(false));
+    s.setTimeout(500, () => done(false));
+  });
 }
 
 function resolveRuntime(target) {
@@ -794,11 +842,10 @@ async function benchTarget(target) {
     return null;
   }
 
-  const squatter = portOccupiedBy(target.port);
-  if (squatter) {
+  if (await portOccupied(target.port)) {
     console.error(
-      `skipped - port ${target.port} is already in use by pid ${squatter} ` +
-        `(kill it first: kill ${squatter}). Refusing to measure an unknown server.`
+      `skipped - port ${target.port} is already in use (find the owner with ` +
+        `\`lsof -ti :${target.port}\` or \`ss -ltnp\`). Refusing to measure an unknown server.`
     );
     return null;
   }
@@ -812,15 +859,26 @@ async function benchTarget(target) {
       PORT: String(target.port),
       ...(target.env || {}),
     },
-    stdio: 'ignore',
+    stdio: ['ignore', 'ignore', 'pipe'],
     detached: true, // own process group so cluster workers die with the primary
   });
   liveChildren.add(child);
+  // Keep the tail of the server's stderr so a start failure says why
+  // (a missing native binary, a bind error) instead of just "skipped".
+  const stderrTail = [];
+  child.stderr.on('data', d => {
+    for (const l of String(d).split('\n')) {
+      if (!l.trim()) continue;
+      stderrTail.push(l);
+      if (stderrTail.length > 30) stderrTail.shift();
+    }
+  });
 
   try {
     const ready = await waitForReady(target.port);
     if (!ready) {
       console.error(`  ${target.name}: server failed to become ready - skipped`);
+      if (stderrTail.length) console.error('  server stderr:\n' + stderrTail.map(l => `    ${l}`).join('\n'));
       return null;
     }
 
@@ -977,16 +1035,86 @@ const GATE_RULES = [
   { key: 'cpuUsPerReq', label: 'CPU µs/req', dir: 'lower', tol: () => 0.03 },
 ];
 
+// Noise floor from the REFERENCE rows: targets whose bits are identical in
+// both runs (published npm packages, third-party runtimes - everything that is
+// not a LOCAL working-tree row). Their movement between the two runs is the
+// box moving, not the candidate, so per metric and profile the gate learns
+// two numbers from them: the median drift (where the box went) and a robust
+// spread (1.4826 x MAD, the sigma of what an unchanged row does between these
+// two runs). A candidate row's tolerance widens by the unfavourable part of
+// the median plus the spread; it never tightens. Fewer than three reference
+// samples give no spread estimate; none give no widening.
+function referenceDrift(resultRows, byKey) {
+  const samples = new Map();
+  const add = (k, v) => {
+    if (!samples.has(k)) samples.set(k, []);
+    samples.get(k).push(v);
+  };
+  for (const row of resultRows) {
+    if (!isReferenceRow(row)) continue;
+    const base = byKey.get(row.key);
+    if (!base) continue;
+    for (const pr of profiles) {
+      const cur = row.byProfile[pr.label];
+      const ref = base.byProfile?.[pr.label];
+      if (!cur || !ref) continue;
+      for (const rule of GATE_RULES) {
+        const c = cur[rule.key];
+        const b = ref[rule.key];
+        if (c != null && b != null && b > 0) add(`${rule.key}|${pr.label}`, (c - b) / b);
+      }
+    }
+    if (row.rssMb != null && base.rssMb != null && base.rssMb > 0) add('rss', (row.rssMb - base.rssMb) / base.rssMb);
+  }
+  const median = a => {
+    const sorted = [...a].sort((x, y) => x - y);
+    const m = sorted.length >> 1;
+    return sorted.length % 2 ? sorted[m] : (sorted[m - 1] + sorted[m]) / 2;
+  };
+  const out = new Map();
+  for (const [k, v] of samples) {
+    const m = median(v);
+    const sigma = v.length >= 3 ? 1.4826 * median(v.map(x => Math.abs(x - m))) : 0;
+    out.set(k, { median: m, sigma, n: v.length });
+  }
+  return out;
+}
+
+// A reference row's bits did not change between the runs, so it cannot
+// regress: its movement is the yardstick, never a breach.
+function isReferenceRow(row) {
+  const target = TARGETS.find(t => t.key === row.key);
+  return !target || !target.requiresPackage;
+}
+
 function compareToBaseline(resultRows, baseline) {
   const byKey = new Map((baseline.rows || []).map(r => [r.key, r]));
   const lines = [];
   const breaches = [];
+  const floors = referenceDrift(resultRows, byKey);
+  // dir 'lower': the box getting slower (positive median) widens; 'higher':
+  // the box losing throughput (negative median) widens. The spread always
+  // widens: a difference smaller than what unchanged rows show is not
+  // resolvable by this pair of runs.
+  const widening = (metricKey, label, dir) => {
+    const f = floors.get(label ? `${metricKey}|${label}` : 'rss');
+    if (!f) return 0;
+    const shift = dir === 'lower' ? Math.max(0, f.median) : Math.max(0, -f.median);
+    return shift + f.sigma;
+  };
+  const driftLines = [];
+  for (const [k, { median, sigma, n }] of floors) {
+    const [metric, label] = k.split('|');
+    const name = metric === 'rss' ? 'RSS' : GATE_RULES.find(r => r.key === metric)?.label || metric;
+    driftLines.push(`${name}${label ? ` / ${label}` : ''}: ${fmtPct(median * 100)} ±${(sigma * 100).toFixed(1)}% (${n} rows)`);
+  }
   for (const row of resultRows) {
     const base = byKey.get(row.key);
     if (!base) {
       lines.push(`| ${row.name} | (not in baseline) |`);
       continue;
     }
+    const reference = isReferenceRow(row);
     for (const pr of profiles) {
       const cur = row.byProfile[pr.label];
       const ref = base.byProfile?.[pr.label];
@@ -1000,8 +1128,8 @@ function compareToBaseline(resultRows, baseline) {
           continue;
         }
         const delta = (c - b) / b;
-        const tol = rule.tol(ref);
-        const bad = rule.dir === 'higher' ? delta < -tol : delta > tol;
+        const tol = rule.tol(ref) + widening(rule.key, pr.label, rule.dir);
+        const bad = !reference && (rule.dir === 'higher' ? delta < -tol : delta > tol);
         cells.push(`${rule.label} ${fmtPct(delta * 100)}${bad ? ' ✗' : ''}`);
         if (bad) {
           breaches.push(
@@ -1009,19 +1137,20 @@ function compareToBaseline(resultRows, baseline) {
           );
         }
       }
-      lines.push(`| ${row.name} | ${pr.label} | ${cells.join(' | ')} |`);
+      lines.push(`| ${row.name}${reference ? ' [ref]' : ''} | ${pr.label} | ${cells.join(' | ')} |`);
     }
     if (row.rssMb != null && base.rssMb != null && base.rssMb > 0) {
       const delta = (row.rssMb - base.rssMb) / base.rssMb;
       // A single post-load RSS sample of the same binary swings ~10% between
       // runs (heap growth timing, TIME_WAIT bookkeeping), so the RSS gate is
       // looser than the throughput/CPU gates
-      const bad = delta > 0.1;
-      lines.push(`| ${row.name} | RSS | ${fmtPct(delta * 100)}${bad ? ' ✗' : ''} (${base.rssMb} → ${row.rssMb} MB) |`);
-      if (bad) breaches.push(`${row.key}: RSS ${fmtPct(delta * 100)} vs baseline (tolerance +10.0%)`);
+      const rssTol = 0.1 + widening('rssMb', null, 'lower');
+      const bad = !reference && delta > rssTol;
+      lines.push(`| ${row.name}${reference ? ' [ref]' : ''} | RSS | ${fmtPct(delta * 100)}${bad ? ' ✗' : ''} (${base.rssMb} → ${row.rssMb} MB) |`);
+      if (bad) breaches.push(`${row.key}: RSS ${fmtPct(delta * 100)} vs baseline (tolerance ${fmtPct(rssTol * 100)})`);
     }
   }
-  return { lines, breaches };
+  return { lines, breaches, driftLines };
 }
 
 // ---------------------------------------------------------------------------
@@ -1033,7 +1162,12 @@ console.log(
     `Moro builds: ${MORO_BUILDS}`
 );
 
-for (let i = 0; i < wanted.length; i++) {
+if (replayFile) {
+  const saved = JSON.parse(readFileSync(resolvePath(replayFile), 'utf8'));
+  if (Array.isArray(saved.profiles) && saved.profiles.length) profiles = saved.profiles;
+  rows.push(...(saved.rows || []));
+  console.log(`\nreplaying ${replayFile} (${saved.date || 'undated'}; ${saved.profileLine || ''}) - no servers started`);
+} else for (let i = 0; i < wanted.length; i++) {
   const target = wanted[i];
   process.stdout.write(`\n[${i + 1}/${wanted.length}] ${target.name} ... `);
   const row = await benchTarget(target);
@@ -1070,9 +1204,12 @@ if (baselineFile && rows.length > 0) {
     console.error(`Could not read baseline ${baselineFile}: ${e.message}`);
     process.exit(1);
   }
-  const { lines, breaches } = compareToBaseline(rows, baseline);
+  const { lines, breaches, driftLines } = compareToBaseline(rows, baseline);
   console.log('');
   console.log(`vs baseline ${baselineFile} (${baseline.date || 'undated'}; ${baseline.profileLine || ''})`);
+  if (driftLines.length) {
+    console.log(`reference drift, unchanged rows [ref] between the two runs (median ±spread; widens the candidate tolerances, never gated): ${driftLines.join('; ')}`);
+  }
   for (const line of lines) console.log(line);
   if (breaches.length) {
     console.log('');

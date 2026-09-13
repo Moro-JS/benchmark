@@ -1,0 +1,635 @@
+{
+  "schema": 1,
+  "date": "2026-09-13T01:18:15.337Z",
+  "profileLine": "-c 100 -d 10 | no pipelining [oha] + fixed rate 20,000 req/s [oha] + keep-alive off (conn/req) [oha] | best of 2 runs | node v24.19.0 | linux/arm64",
+  "profiles": [
+    {
+      "label": "no pipelining",
+      "p": 1,
+      "rate": 0,
+      "keepalive": true,
+      "generator": "oha"
+    },
+    {
+      "label": "fixed rate 20,000 req/s",
+      "p": 1,
+      "rate": 20000,
+      "keepalive": true,
+      "generator": "oha"
+    },
+    {
+      "label": "keep-alive off (conn/req)",
+      "p": 1,
+      "rate": 0,
+      "keepalive": false,
+      "generator": "oha"
+    }
+  ],
+  "node": "v24.19.0",
+  "platform": "linux",
+  "arch": "arm64",
+  "cpu": "unknown",
+  "moroBuilds": "npm @morojs/moro@1.8.7 | npm @morojs/engine@1.1.5 | local moro-local@1.8.9 (/work/MoroJS) | local engine-local@1.1.5 @ d173350 (/src/engine/packages/engine)",
+  "duration": 10,
+  "connections": 100,
+  "runs": 2,
+  "quick": false,
+  "rows": [
+    {
+      "name": "MoroJS + @morojs/engine (LOCAL build)",
+      "key": "engine-local",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 251729.91875906588,
+          "latAvgMs": 0.3961124808259193,
+          "latP99Ms": 0.9101670000000001,
+          "cpuUsPerReq": 3.9716771757244738,
+          "cpuPct": 100,
+          "bytesPerResp": null,
+          "requestsTotal": 2517828,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 251729.91875906588,
+              "latAvgMs": 0.3961124808259193,
+              "latP99Ms": 0.9101670000000001,
+              "cpuUsPerReq": 3.9716771757244738,
+              "cpuPct": 100,
+              "bytesPerResp": null,
+              "requestsTotal": 2517828,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 235900.77302744708,
+              "latAvgMs": 0.4218854836225246,
+              "latP99Ms": 1.0804580000000001,
+              "cpuUsPerReq": 4.225241797717607,
+              "cpuPct": 99.8,
+              "bytesPerResp": null,
+              "requestsTotal": 2361995,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 19992.589496278426,
+          "latAvgMs": 0.5928166977560632,
+          "latP99Ms": 2.6085000000000003,
+          "cpuUsPerReq": 16.65324738323973,
+          "cpuPct": 33.300000000000004,
+          "bytesPerResp": null,
+          "requestsTotal": 199961,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 19992.589496278426,
+              "latAvgMs": 0.5928166977560632,
+              "latP99Ms": 2.6085000000000003,
+              "cpuUsPerReq": 16.65324738323973,
+              "cpuPct": 33.300000000000004,
+              "bytesPerResp": null,
+              "requestsTotal": 199961,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 19993.979321937695,
+              "latAvgMs": 0.6174117365504856,
+              "latP99Ms": 2.9900830000000003,
+              "cpuUsPerReq": 16.40246036905536,
+              "cpuPct": 32.800000000000004,
+              "bytesPerResp": null,
+              "requestsTotal": 199970,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 100320.90279081733,
+          "latAvgMs": 0.9927942485198349,
+          "latP99Ms": 1.504292,
+          "cpuUsPerReq": 9.892615804873383,
+          "cpuPct": 99.3,
+          "bytesPerResp": null,
+          "requestsTotal": 1003779,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 100320.90279081733,
+              "latAvgMs": 0.9927942485198349,
+              "latP99Ms": 1.504292,
+              "cpuUsPerReq": 9.892615804873383,
+              "cpuPct": 99.3,
+              "bytesPerResp": null,
+              "requestsTotal": 1003779,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 99454.63804439975,
+              "latAvgMs": 1.0027137683317393,
+              "latP99Ms": 1.7596669999999999,
+              "cpuUsPerReq": 10.052473913830193,
+              "cpuPct": 100,
+              "bytesPerResp": null,
+              "requestsTotal": 994780,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.3961124808259193,
+      "latencyP99": 0.9101670000000001,
+      "cpuUsPerReq": 3.9716771757244738,
+      "cpuPct": 100,
+      "bytesPerResp": null,
+      "rssMb": 85,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "raw Bun.serve (baseline)",
+      "key": "raw-bun",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 203329.7142208964,
+          "latAvgMs": 0.4903898884617971,
+          "latP99Ms": 1.23125,
+          "cpuUsPerReq": 5.0837091213738015,
+          "cpuPct": 103.4,
+          "bytesPerResp": null,
+          "requestsTotal": 2033948,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 203329.7142208964,
+              "latAvgMs": 0.4903898884617971,
+              "latP99Ms": 1.23125,
+              "cpuUsPerReq": 5.0837091213738015,
+              "cpuPct": 103.4,
+              "bytesPerResp": null,
+              "requestsTotal": 2033948,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 177332.55313952643,
+              "latAvgMs": 0.5605080435526404,
+              "latP99Ms": 1.5185419999999998,
+              "cpuUsPerReq": 5.804316904454307,
+              "cpuPct": 103.2,
+              "bytesPerResp": null,
+              "requestsTotal": 1777987,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 19993.803911598607,
+          "latAvgMs": 0.6345203696894749,
+          "latP99Ms": 3.512709,
+          "cpuUsPerReq": 20.30436543856929,
+          "cpuPct": 40.6,
+          "bytesPerResp": null,
+          "requestsTotal": 199957,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 19994.781211019934,
+              "latAvgMs": 0.809239450694367,
+              "latP99Ms": 9.990041999999999,
+              "cpuUsPerReq": 20.7034160636505,
+              "cpuPct": 41.4,
+              "bytesPerResp": null,
+              "requestsTotal": 199967,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 19993.803911598607,
+              "latAvgMs": 0.6345203696894749,
+              "latP99Ms": 3.512709,
+              "cpuUsPerReq": 20.30436543856929,
+              "cpuPct": 40.6,
+              "bytesPerResp": null,
+              "requestsTotal": 199957,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 83930.57372722696,
+          "latAvgMs": 1.1887683898192987,
+          "latP99Ms": 2.3223749999999996,
+          "cpuUsPerReq": 11.90118797443925,
+          "cpuPct": 99.9,
+          "bytesPerResp": null,
+          "requestsTotal": 839412,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 83930.57372722696,
+              "latAvgMs": 1.1887683898192987,
+              "latP99Ms": 2.3223749999999996,
+              "cpuUsPerReq": 11.90118797443925,
+              "cpuPct": 99.9,
+              "bytesPerResp": null,
+              "requestsTotal": 839412,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 83459.2490281586,
+              "latAvgMs": 1.195016938382953,
+              "latP99Ms": 2.2836250000000002,
+              "cpuUsPerReq": 12.076614618214842,
+              "cpuPct": 100.8,
+              "bytesPerResp": null,
+              "requestsTotal": 834671,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.4903898884617971,
+      "latencyP99": 1.23125,
+      "cpuUsPerReq": 5.0837091213738015,
+      "cpuPct": 103.4,
+      "bytesPerResp": null,
+      "rssMb": 50,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "raw @morojs/engine (LOCAL build)",
+      "key": "raw-engine-local",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 201689.82410694732,
+          "latAvgMs": 0.494105997120532,
+          "latP99Ms": 1.036041,
+          "cpuUsPerReq": 4.917225059209933,
+          "cpuPct": 99.2,
+          "bytesPerResp": null,
+          "requestsTotal": 2017398,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 190690.58344055444,
+              "latAvgMs": 0.5226169423388619,
+              "latP99Ms": 1.11775,
+              "cpuUsPerReq": 5.200172570242956,
+              "cpuPct": 99.2,
+              "bytesPerResp": null,
+              "requestsTotal": 1907629,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 201689.82410694732,
+              "latAvgMs": 0.494105997120532,
+              "latP99Ms": 1.036041,
+              "cpuUsPerReq": 4.917225059209933,
+              "cpuPct": 99.2,
+              "bytesPerResp": null,
+              "requestsTotal": 2017398,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 19993.461091166126,
+          "latAvgMs": 0.7230009140113997,
+          "latP99Ms": 3.581167,
+          "cpuUsPerReq": 17.95179517951795,
+          "cpuPct": 35.9,
+          "bytesPerResp": null,
+          "requestsTotal": 199980,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 19991.561364747777,
+              "latAvgMs": 0.8125422031046743,
+              "latP99Ms": 5.674042,
+              "cpuUsPerReq": 19.30424693432555,
+              "cpuPct": 38.6,
+              "bytesPerResp": null,
+              "requestsTotal": 199956,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 19993.461091166126,
+              "latAvgMs": 0.7230009140113997,
+              "latP99Ms": 3.581167,
+              "cpuUsPerReq": 17.95179517951795,
+              "cpuPct": 35.9,
+              "bytesPerResp": null,
+              "requestsTotal": 199980,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 98238.44409793118,
+          "latAvgMs": 1.0142876725228773,
+          "latP99Ms": 1.286333,
+          "cpuUsPerReq": 10.064508513108793,
+          "cpuPct": 98.9,
+          "bytesPerResp": null,
+          "requestsTotal": 982661,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 98238.44409793118,
+              "latAvgMs": 1.0142876725228773,
+              "latP99Ms": 1.286333,
+              "cpuUsPerReq": 10.064508513108793,
+              "cpuPct": 98.9,
+              "bytesPerResp": null,
+              "requestsTotal": 982661,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 98153.81914646289,
+              "latAvgMs": 1.0158052001141105,
+              "latP99Ms": 1.52575,
+              "cpuUsPerReq": 10.10548619918606,
+              "cpuPct": 99.2,
+              "bytesPerResp": null,
+              "requestsTotal": 981645,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.494105997120532,
+      "latencyP99": 1.036041,
+      "cpuUsPerReq": 4.917225059209933,
+      "cpuPct": 99.2,
+      "bytesPerResp": null,
+      "rssMb": 55,
+      "errors": 0,
+      "non2xx": 0
+    },
+    {
+      "name": "raw uWebSockets.js (baseline)",
+      "key": "raw-uws",
+      "byProfile": {
+        "no pipelining": {
+          "reqSec": 217826.20441037012,
+          "latAvgMs": 0.45754050151677117,
+          "latP99Ms": 0.960583,
+          "cpuUsPerReq": 4.584764446826829,
+          "cpuPct": 99.9,
+          "bytesPerResp": null,
+          "requestsTotal": 2178956,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 195254.35862774865,
+              "latAvgMs": 0.5091257021479868,
+              "latP99Ms": 1.025166,
+              "cpuUsPerReq": 5.069494534051555,
+              "cpuPct": 99.1,
+              "bytesPerResp": null,
+              "requestsTotal": 1954830,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 217826.20441037012,
+              "latAvgMs": 0.45754050151677117,
+              "latP99Ms": 0.960583,
+              "cpuUsPerReq": 4.584764446826829,
+              "cpuPct": 99.9,
+              "bytesPerResp": null,
+              "requestsTotal": 2178956,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "fixed rate 20,000 req/s": {
+          "reqSec": 19994.33017137435,
+          "latAvgMs": 0.6245892560893279,
+          "latP99Ms": 2.163208,
+          "cpuUsPerReq": 16.90160565253699,
+          "cpuPct": 33.800000000000004,
+          "bytesPerResp": null,
+          "requestsTotal": 199981,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 19994.33017137435,
+              "latAvgMs": 0.6245892560893279,
+              "latP99Ms": 2.163208,
+              "cpuUsPerReq": 16.90160565253699,
+              "cpuPct": 33.800000000000004,
+              "bytesPerResp": null,
+              "requestsTotal": 199981,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 19990.37090567602,
+              "latAvgMs": 0.6063965567478989,
+              "latP99Ms": 2.22325,
+              "cpuUsPerReq": 16.20153914621889,
+              "cpuPct": 32.4,
+              "bytesPerResp": null,
+              "requestsTotal": 199981,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        },
+        "keep-alive off (conn/req)": {
+          "reqSec": 99909.10065384007,
+          "latAvgMs": 0.9987908881589483,
+          "latP99Ms": 1.348625,
+          "cpuUsPerReq": 9.986970905692173,
+          "cpuPct": 99.8,
+          "bytesPerResp": null,
+          "requestsTotal": 999302,
+          "errors": 0,
+          "non2xx": 0,
+          "perf": {
+            "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+          },
+          "generator": "oha",
+          "runs": [
+            {
+              "reqSec": 99341.39952134054,
+              "latAvgMs": 1.0039852374009735,
+              "latP99Ms": 1.3820830000000002,
+              "cpuUsPerReq": 10.034118014110163,
+              "cpuPct": 99.7,
+              "bytesPerResp": null,
+              "requestsTotal": 993610,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            },
+            {
+              "reqSec": 99909.10065384007,
+              "latAvgMs": 0.9987908881589483,
+              "latP99Ms": 1.348625,
+              "cpuUsPerReq": 9.986970905692173,
+              "cpuPct": 99.8,
+              "bytesPerResp": null,
+              "requestsTotal": 999302,
+              "errors": 0,
+              "non2xx": 0,
+              "perf": {
+                "unavailable": "event syntax error: '..ter_sendto,syscalls:sys_enter_epoll_wait,syscalls:sys_..'\n                                  \\___ unknown tracepoint\n\nError:\tFile /sys/kernel/tracing//events/syscalls/sys_enter_e"
+              }
+            }
+          ]
+        }
+      },
+      "latencyAvg": 0.45754050151677117,
+      "latencyP99": 0.960583,
+      "cpuUsPerReq": 4.584764446826829,
+      "cpuPct": 99.9,
+      "bytesPerResp": null,
+      "rssMb": 54,
+      "errors": 0,
+      "non2xx": 0
+    }
+  ]
+}
