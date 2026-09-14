@@ -63,13 +63,36 @@ between sessions), while pipelined ×10 is an **engine win in every run,
 
 ## Results
 
-> A candidate run of the unreleased engine 1.1.6 / MoroJS 1.9.0 working trees
-> (templates, fast API calls, batched dispatch, PGO, worker-thread clustering)
-> is in [VERIFIED_RESULTS.md](VERIFIED_RESULTS.md#candidate-run-2026-09-11--engine-120--morojs-190-working-trees-not-yet-published)
-> and [candidates/2026-09-11](candidates/2026-09-11/README.md). The tables
-> below stay at the published packages' numbers until those ship.
+### MoroJS 1.8.10 / @morojs/engine 1.1.6 — publication run 2026-09-14
 
-### Engine era (MoroJS 1.8.0 / @morojs/engine 1.1.x) — publication run
+Verified against the **published npm packages** at the publication bar:
+`wrk -c 100 -d 40`, best-of-3 per target, both profiles, idle machine, Node
+v24.11.0, Apple M2 Ultra. Full table:
+[results-2026-09-14T14-21-41.md](results-2026-09-14T14-21-41.md) · analysis:
+[VERIFIED_RESULTS.md](VERIFIED_RESULTS.md).
+
+| Server | no pipelining | pipelined ×10 (microbench) | CPU µs/req | RSS |
+|--------|---------------|----------------------------|------------|-----|
+| **MoroJS + @morojs/engine** _(default, npm)_ | **119,226** | **965,928** | **8.1** | 66 MB |
+| raw Bun.serve (baseline, no framework) | 115,042 | 24,949 | 8.7 | 29 MB |
+| raw @morojs/engine (baseline, no framework) | 110,598 | 893,133 | 8.8 | 45 MB |
+| MoroJS + @morojs/engine (clustered, 24 worker threads, npm) | 108,826 | 829,616 | 9.2 | 391 MB |
+| raw uWebSockets.js (baseline, no framework) | 106,051 | 693,481 | 9.3 | 48 MB |
+| MoroJS + uWebSockets.js (npm) | 100,857 | 519,381 | 9.8 | 64 MB |
+| MoroJS (single thread, node engine, npm) | 79,157 | 125,587 | 12.5 | 141 MB |
+
+The default path is the fastest row on the board in both profiles — ahead
+of raw Bun.serve by 3.6% realistic and 39× pipelined, and of bare
+uWebSockets.js by 12.4% and 39% — at 8.1 µs of CPU per request and 66 MB.
+The clustered row is 24 worker threads in one process (the 1.8.10 default
+for the engine backend on POSIX): 391 MB where the August run's 24
+processes took 1,582 MB; on one box it lands at the same loopback ceiling
+as a single thread. What the two releases changed, with the per-generator
+(wrk, oha, bombardier, autocannon) and Linux-container measurements behind
+them: [candidates/2026-09-13](candidates/2026-09-13/README.md) and
+[candidates/2026-09-11](candidates/2026-09-11/README.md).
+
+### Engine era (MoroJS 1.8.0 / @morojs/engine 1.1.x) — publication run 2026-07-10 (previous)
 
 Verified 2026-07-10 against the **published npm packages** at the publication
 bar: `wrk -c 100 -d 40`, best-of-3 per target, both profiles, idle machine,

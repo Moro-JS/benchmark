@@ -45,8 +45,8 @@
   "dependencies": {
     "@elysiajs/node": "^1.4.5",
     "@hono/node-server": "^2.0.8",
-    "@morojs/engine": "^1.1.5",
-    "@morojs/moro": "^1.8.7",
+    "@morojs/engine": "^1.1.6",
+    "@morojs/moro": "^1.8.10",
     "autocannon": "^8.0.0",
     "elysia": "^1.4.29",
     "express": "^5.2.1",

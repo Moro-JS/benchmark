@@ -1,11 +1,62 @@
 # MoroJS Performance Benchmark Results
 
-**Verified 2026-08-03** · `wrk` · Node v24.11.0 · Apple M2 Ultra (24-core, 64 GB), macOS
-· MoroJS **1.8.7** · @morojs/engine **1.1.5** — both installed **from npm** (the
+**Verified 2026-09-14** · `wrk` · Node v24.11.0 · Apple M2 Ultra (24-core, 64 GB), macOS
+· MoroJS **1.8.10** · @morojs/engine **1.1.6** — both installed **from npm** (the
 exact artifacts users get), served by `bench.js` (one server at a time, per-target
 ports, boot sanity asserts the intended engine actually loaded).
 
-## Candidate run 2026-09-11 — engine 1.1.6 / MoroJS 1.9.0 working trees (not yet published)
+## Publication run 2026-09-14 — MoroJS 1.8.10 / engine 1.1.6, full matrix, `-d 40`, best-of-3 (the headline numbers)
+
+Saved by `bench.js --save`: [results-2026-09-14T14-21-41.md](results-2026-09-14T14-21-41.md)
+(+ `.json`). `wrk -c 100 -d 40`, best-of-3 per target, both profiles, one
+server at a time, idle box. Bun 1.3.14, uWebSockets.js 20.69. CPU µs/req and
+bytes/resp are from the no-pipelining profile.
+
+| Server | Req/sec (no pipelining) | Req/sec (pipelined ×10) | Latency avg | Latency p99 | CPU µs/req | bytes/resp | RSS under load |
+|--------|------------------------|--------------------------|-------------|-------------|------------|------------|----------------|
+| **MoroJS + @morojs/engine (npm)** _(default)_ | **119,226** | **965,928** | **0.8 ms** | **1.3 ms** | **8.1** | 125 B | 66 MB |
+| raw Bun.serve (baseline, no framework)³ | 115,042 | 24,949 | 0.8 ms | 1.4 ms | 8.7 | 125 B | 29 MB |
+| raw @morojs/engine (baseline, no framework) | 110,598 | 893,133 | 0.9 ms | 1.5 ms | 8.8 | 125 B | 45 MB |
+| MoroJS (clustered, npm)² | 108,826 | 829,616 | 0.9 ms | 1.6 ms | 9.2 | 125 B | 391 MB |
+| raw uWebSockets.js (baseline, no framework) | 106,051 | 693,481 | 0.9 ms | 1.5 ms | 9.3 | 142 B | 48 MB |
+| Elysia (Bun)³ | 102,885 | 25,022 | 0.9 ms | 1.6 ms | 9.8 | 139 B | 48 MB |
+| MoroJS + uWebSockets.js (npm) | 100,857 | 519,381 | 0.9 ms | 1.7 ms | 9.8 | 142 B | 64 MB |
+| raw node:http (baseline, no framework) | 86,407 | 130,792 | 1.1 ms | 1.7 ms | 11.5 | 191 B | 197 MB |
+| MoroJS (single thread, node engine, npm) | 79,157 | 125,587 | 1.2 ms | 1.9 ms | 12.5 | 187 B | 141 MB |
+| Fastify | 78,640 | 126,635 | 1.2 ms | 2.1 ms | 12.6 | 188 B | 204 MB |
+| Elysia (Node adapter)³ | 74,620 | 124,227 | 1.3 ms | 1.9 ms | 13.3 | 172 B | 218 MB |
+| Hono (Node) | 66,618 | 112,473 | 1.4 ms | 2.0 ms | 14.8 | 172 B | 201 MB |
+| Koa | 63,389 | 96,357 | 1.5 ms | 2.4 ms | 15.5 | 187 B | 206 MB |
+| Express | 50,098 | 70,258 | 2.0 ms | 2.8 ms | 20.0 | 252 B | 220 MB |
+
+² 24 **worker threads in one process** (the 1.8.10 default for the engine
+backend on POSIX); the 2026-08-03 row was 24 processes at 1,582 MB. On a
+single box the generator competes with the workers for cores, so the row
+lands at the loopback ceiling like one thread — reported for completeness.
+³ Bun 1.3.14.
+
+Headlines against the 2026-08-03 publication run (1.8.7 / 1.1.5):
+
+- **The full framework is the fastest row on the board in both profiles**:
+  119,226 / 965,928 vs raw Bun.serve's 115,042 / 24,949 (+3.6% / 39×), raw
+  uWebSockets.js's 106,051 / 693,481 (+12.4% / +39%), and the raw engine's
+  own 110,598 / 893,133 — the framework row now outruns the bare engine
+  server because it uses the prepared response templates and batched
+  dispatch the bare benchmark server does not.
+- **+9.7% realistic, +40% pipelined, same memory** for the default path:
+  108,687 → 119,226 and 688,980 → 965,928 at 65 → 66 MB, with CPU per
+  request 8.1 µs against Bun's 8.7 and uWS's 9.3.
+- **Clustering at a quarter of the memory**: 391 MB for 24 workers (threads)
+  against 1,582 MB (processes), at 108,826 / 829,616.
+- The non-Moro rows moved with the box (raw node:http 71,437 → 86,407,
+  Fastify 68,880 → 78,640): this run had an idle machine where the August
+  run carried background load, so the absolute numbers are higher across
+  the table and the comparisons within the run are what to read.
+- What changed in the two releases, and the per-generator and Linux
+  measurements behind them: the candidate sections below and
+  [candidates/2026-09-13/README.md](candidates/2026-09-13/README.md).
+
+## Candidate run 2026-09-11 — engine 1.1.6 / MoroJS 1.9.0 working trees (shipped as @morojs/engine 1.1.6 and MoroJS 1.8.10 on 2026-09-14)
 
 Not a publication number: the working trees, not npm artifacts. Full table,
 gate output and analysis in [candidates/2026-09-11](candidates/2026-09-11/README.md);
@@ -85,7 +136,7 @@ PGO-optimised binary, and worker-thread clustering (the clustered row is one
 process). The headline tables below stay at the published 1.1.5 / 1.8.7
 numbers until the new versions are on npm and re-verified from there.
 
-## Publication run — full matrix, `-d 40`, best-of-3 (the headline numbers)
+## Publication run 2026-08-03 — MoroJS 1.8.7 / engine 1.1.5 (previous)
 
 Saved by `bench.js --save`: [results-2026-08-03T02-53-28.md](results-2026-08-03T02-53-28.md).
 `wrk -c 100 -d 40`, best-of-3 per target, both profiles, one server at a time.
