@@ -163,19 +163,41 @@ ratios matter):
 | syscalls | 9: accept4, epoll add (batched through libuv's own io_uring), read, sendto, shutdown, read (EOF), epoll_ctl del, close, epoll_wait | 14: accept4, fcntl ×2, ioctl, setsockopt, epoll_ctl ×5, recvfrom, sendto, shutdown, close |
 | top kernel symbol | `tcp_fin` 12.9% | `el0_svc` (syscall entry) 11.9% |
 
-The engine makes fewer syscalls; what it pays that uWS does not is the
-orderly close. The engine sends its FIN first, with the response bytes, so
-when the client's FIN arrives the server socket goes through `tcp_fin` →
-TIME_WAIT bookkeeping (the memcg charge/free entries next to it in the
-profile are the timewait socket), plus the read that observes the EOF.
-uWebSockets.js does not echo `Connection: close` for HTTP/1.1 requests, so
-its client closes first and holds the TIME_WAIT, and under wrk its
-connections end in resets (the read errors in the table) that skip the
-orderly close altogether; Bun.serve behaves the same way. That is about
-1 µs per connection moved from the server to the client, and it is the
-3–13% per-connection CPU gap in the table above. Closing first is the
-RFC 9112 §9.6 sequence, it is what keeps a macOS client from draining its
-ephemeral ports (`../2026-09-11/`), and it is what nginx does; the engine
-keeps it. The listener-level `TCP_NODELAY` change made on the same day
-removes one of the nine syscalls on POSIX (verified inheritance,
-`test/sockopt-unit.cpp`).
+The engine makes fewer syscalls; what it pays that uWS does not under wrk
+is the orderly close. The engine sends its FIN first, with the response
+bytes, so when the client's FIN arrives the server socket goes through
+`tcp_fin` → TIME_WAIT bookkeeping (the memcg charge/free entries next to it
+are the timewait socket), plus the read that observes the EOF. uWS does not
+echo `Connection: close`, so under wrk (which then writes a second request)
+its connections end in resets that skip the orderly close altogether; Bun
+behaves the same way. Under oha and bombardier both clients do send
+`Connection: close` (captured), uWS honours it, and its FIN goes out as its
+own segment about 0.2 ms after the data (idle probe), late enough that a
+fast client usually closes first and uWS becomes the passive closer: no
+`shutdown`, no TIME_WAIT, no lingering read.
+
+**Tested and rejected (`linux-fin-ab/`):** the obvious counter-move — send
+the data segment and the FIN right behind it as its own segment on Linux,
+so the client wins the race — measured 15–25% *slower* than the coalesced
+FIN across three rotated rounds under both generators (a simultaneous
+close costs both sides). Medians, connections per second (CPU µs per
+connection):
+
+| Linux churn | MoroJS + engine | raw engine | raw uWS |
+|---|---|---|---|
+| oha, coalesced FIN (shipped) | 83,766 (11.9) | 76,315 (12.9) | 94,527 (10.6) |
+| oha, separate FIN | 69,166 (14.4) | 66,335 (15.0) | 93,286 (10.7) |
+| bombardier, coalesced FIN (shipped) | 82,294 (12.0) | 87,223 (11.3) | 93,090 (10.5) |
+| bombardier, separate FIN | 74,310 (13.0) | 76,315 (12.6) | 91,955 (10.7) |
+
+So the coalesced FIN stays, and the honest Linux churn statement is: uWS
+is 7–13% ahead of the engine rows on this VM with about 1–2 µs less CPU per
+connection, the difference being the passive-closer path its deferred FIN
+gets under load. The one variant not tried is deferring the engine's FIN
+to the end of the loop iteration the same way (a `uv_check`), which would
+add up to one iteration of latency for the rare client that waits for the
+server's FIN before closing; on macOS the coalesced FIN must stay
+regardless (client-side port exhaustion). That is a bare-metal decision:
+the VM's ±15% round-to-round spread on this cell is as large as the gap.
+The listener-level `TCP_NODELAY` change made on the same day removes one of
+the nine syscalls on POSIX (verified inheritance, `test/sockopt-unit.cpp`).
