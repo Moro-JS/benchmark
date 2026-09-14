@@ -57,7 +57,7 @@ numbers where the two are also effectively tied. One asymmetry runs the
 engine's way: the responses were not equal-sized in these sessions (engine
 1.1.5: 149 bytes — it sent `Connection: keep-alive`; uWS 142 bytes, sending
 a `uWebSockets: 20` header instead), so at equal rps the engine was moving
-~5% more bytes per second through the same syscalls. Engine 1.2.0 stops
+~5% more bytes per second through the same syscalls. Engine 1.1.6 stops
 sending that header on HTTP/1.1 keep-alive responses (the version default,
 RFC 9112 §9.3; HTTP/1.0 and `Connection: close` paths unchanged), which makes
 its response 24 bytes *smaller* than uWS's — re-measure before quoting this

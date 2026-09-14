@@ -14,7 +14,7 @@ const port = parseInt(process.env.PORT || '3128', 10);
 const BODY = '{"hello":"world"}';
 const HEADERS = ['content-type', 'application/json'];
 
-// Batched dispatch when the engine has it (engine >= 1.2.0; MORO_ENGINE_BATCH=0
+// Batched dispatch when the engine has it (engine >= 1.1.6; MORO_ENGINE_BATCH=0
 // turns it off): the canonical loop over getBatchBuffers() descriptors.
 const batchOn = engine.probe().capabilities?.batchDispatch === true;
 let buffers = null;

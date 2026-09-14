@@ -1,4 +1,4 @@
-# Baseline 2026-09-11 (pre-1.2.0 engine, pre-1.9.0 framework)
+# Baseline 2026-09-11 (pre-1.1.6 engine, pre-1.9.0 framework)
 
 The reference run the engine performance program is gated against
 (`bench.js --baseline=baselines/2026-09-11/results-2026-09-11T07-59-51.json --gate`).
@@ -28,6 +28,6 @@ Observations recorded at capture time:
   Bun and uWS reach ~25k. A Node `net`-based churn client against the same
   engine reaches ~14k conn/s on this machine and ~30k inside a Linux
   container (io_uring), so this looks like a wrk-vs-macOS accept interaction
-  rather than an engine ceiling; it is re-measured on Linux in the 1.2.0 run.
+  rather than an engine ceiling; it is re-measured on Linux in the 1.1.6 run.
 - Cluster RSS is the process tree (24 worker processes); thread-mode rows in
   later runs are one process.

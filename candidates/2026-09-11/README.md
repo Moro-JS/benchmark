@@ -1,4 +1,4 @@
-# Candidate run 2026-09-11 — engine 1.2.0 + MoroJS 1.9.0 working trees
+# Candidate run 2026-09-11 — engine 1.1.6 + MoroJS 1.9.0 working trees
 
 > Superseded in part by [`../2026-09-13/`](../2026-09-13/README.md): the
 > churn comparisons below were made before the lingering-close change and
@@ -73,7 +73,7 @@ numbers as a same-run comparison, not as absolutes.
 | Row (Linux container) | plain | pipelined ×10 | conn/req | p99 | p99 @ 20k/s | CPU µs/req | RSS |
 |---|---|---|---|---|---|---|---|
 | **MoroJS 1.9.0-cand + engine (libuv, default)** | **326,345** | **1,460,634** | 107,660 | **0.6 ms** | **1.6 ms** | **3.1** | **77 MB** |
-| raw engine 1.2.0-cand (libuv) | 310,895 | 1,508,151 | 109,570 | 0.7 ms | 1.6 ms | 3.2 | 58 MB |
+| raw engine 1.1.6-cand (libuv) | 310,895 | 1,508,151 | 109,570 | 0.7 ms | 1.6 ms | 3.2 | 58 MB |
 | MoroJS clustered, worker threads (libuv) | 713,379 | 4,310,410 | 164,546 | 2.1 ms | 1.2 ms | 5.4 | 249 MB |
 | MoroJS + engine (io_uring, opt-in) | 292,287 | 1,349,079 | 101,017 | 0.7 ms | 1.7 ms | 3.4 | 83 MB |
 | raw engine (io_uring, opt-in) | 305,058 | 1,419,013 | 100,126 | 0.6 ms | 1.6 ms | 3.3 | 64 MB |

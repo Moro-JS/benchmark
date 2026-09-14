@@ -5,7 +5,7 @@
 exact artifacts users get), served by `bench.js` (one server at a time, per-target
 ports, boot sanity asserts the intended engine actually loaded).
 
-## Candidate run 2026-09-11 — engine 1.2.0 / MoroJS 1.9.0 working trees (not yet published)
+## Candidate run 2026-09-11 — engine 1.1.6 / MoroJS 1.9.0 working trees (not yet published)
 
 Not a publication number: the working trees, not npm artifacts. Full table,
 gate output and analysis in [candidates/2026-09-11](candidates/2026-09-11/README.md);
@@ -15,7 +15,7 @@ profiles (`--rate=50000`, `--keepalive=off`, CPU µs/req, bytes/resp).
 
 | Row (2026-09-11 candidate) | no pipelining | pipelined ×10 | CPU µs/req | RSS |
 |---|---|---|---|---|
-| raw @morojs/engine 1.2.0-candidate | 114,626 | **936,861** | 8.5 | 48 MB |
+| raw @morojs/engine 1.1.6-candidate | 114,626 | **936,861** | 8.5 | 48 MB |
 | MoroJS 1.9.0-candidate + engine | **115,056** | **926,119** | 8.4 | 68 MB |
 | MoroJS 1.9.0-candidate clustered (worker threads, one process) | 112,596 | 936,765 | 8.7 | **504 MB** |
 | raw @morojs/engine 1.1.5 (npm, same session) | 114,579 | 845,313 | 8.5 | 48 MB |

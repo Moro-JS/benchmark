@@ -63,7 +63,7 @@ between sessions), while pipelined ×10 is an **engine win in every run,
 
 ## Results
 
-> A candidate run of the unreleased engine 1.2.0 / MoroJS 1.9.0 working trees
+> A candidate run of the unreleased engine 1.1.6 / MoroJS 1.9.0 working trees
 > (templates, fast API calls, batched dispatch, PGO, worker-thread clustering)
 > is in [VERIFIED_RESULTS.md](VERIFIED_RESULTS.md#candidate-run-2026-09-11--engine-120--morojs-190-working-trees-not-yet-published)
 > and [candidates/2026-09-11](candidates/2026-09-11/README.md). The tables

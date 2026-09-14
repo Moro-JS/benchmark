@@ -2,7 +2,7 @@
 
 Follow-up to [`../2026-09-11/`](../2026-09-11/README.md) after the question
 "does MoroJS beat Bun and uWebSockets.js under every load generator, not
-just wrk?". Same working trees (engine 1.2.0 candidate, MoroJS 1.9.0
+just wrk?". Same working trees (engine 1.1.6 candidate, MoroJS 1.9.0
 candidate) plus one engine change made on this day, and two harness
 corrections the survey itself forced.
 
