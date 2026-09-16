@@ -63,33 +63,39 @@ between sessions), while pipelined ×10 is an **engine win in every run,
 
 ## Results
 
-### MoroJS 1.8.10 / @morojs/engine 1.1.6 — publication run 2026-09-14
+### MoroJS 1.8.12 / @morojs/engine 1.1.7 — publication run 2026-09-16
 
 Verified against the **published npm packages** at the publication bar:
-`wrk -c 100 -d 40`, best-of-3 per target, both profiles, idle machine, Node
-v24.11.0, Apple M2 Ultra. Full table:
-[results-2026-09-14T14-21-41.md](results-2026-09-14T14-21-41.md) · analysis:
-[VERIFIED_RESULTS.md](VERIFIED_RESULTS.md).
+`wrk -c 100 -d 40`, best-of-3 per target, both profiles, Node v24.11.0,
+Apple M2 Ultra. Full table:
+[results-2026-09-16T01-15-31.md](results-2026-09-16T01-15-31.md) · analysis:
+[VERIFIED_RESULTS.md](VERIFIED_RESULTS.md) (the 2026-09-14 run on 1.8.10 /
+1.1.6 is kept there for comparison).
 
 | Server | no pipelining | pipelined ×10 (microbench) | CPU µs/req | RSS |
 |--------|---------------|----------------------------|------------|-----|
-| **MoroJS + @morojs/engine** _(default, npm)_ | **119,226** | **965,928** | **8.1** | 66 MB |
-| raw Bun.serve (baseline, no framework) | 115,042 | 24,949 | 8.7 | 29 MB |
-| raw @morojs/engine (baseline, no framework) | 110,598 | 893,133 | 8.8 | 45 MB |
-| MoroJS + @morojs/engine (clustered, 24 worker threads, npm) | 108,826 | 829,616 | 9.2 | 391 MB |
-| raw uWebSockets.js (baseline, no framework) | 106,051 | 693,481 | 9.3 | 48 MB |
-| MoroJS + uWebSockets.js (npm) | 100,857 | 519,381 | 9.8 | 64 MB |
-| MoroJS (single thread, node engine, npm) | 79,157 | 125,587 | 12.5 | 141 MB |
+| **MoroJS + @morojs/engine** _(default, npm)_ | **111,485** | **913,503** | **8.5** | 66 MB |
+| raw @morojs/engine (baseline, no framework) | 108,446 | 832,171 | 9.0 | 54 MB |
+| MoroJS + @morojs/engine (clustered, 24 worker threads, npm) | 106,625 | 953,169 | 9.3 | 432 MB |
+| raw uWebSockets.js (baseline, no framework) | 106,287 | 652,934 | 9.2 | 47 MB |
+| raw Bun.serve (baseline, no framework) | 104,026 | 22,558 | 9.5 | 37 MB |
+| MoroJS + uWebSockets.js (npm) | 103,264 | 517,718 | 9.5 | 73 MB |
+| MoroJS (single thread, node engine, npm) | 70,396 | 118,135 | 13.6 | 141 MB |
 
-The default path is the fastest row on the board in both profiles — ahead
-of raw Bun.serve by 3.6% realistic and 39× pipelined, and of bare
-uWebSockets.js by 12.4% and 39% — at 8.1 µs of CPU per request and 66 MB.
-The clustered row is 24 worker threads in one process (the 1.8.10 default
-for the engine backend on POSIX): 391 MB where the August run's 24
-processes took 1,582 MB; on one box it lands at the same loopback ceiling
-as a single thread. What the two releases changed, with the per-generator
-(wrk, oha, bombardier, autocannon) and Linux-container measurements behind
-them: [candidates/2026-09-13](candidates/2026-09-13/README.md) and
+The default path is the fastest row without pipelining — ahead of the raw
+engine by 2.8%, of bare uWebSockets.js by 4.9% and of raw Bun.serve by
+7.2% — and pipelined it is 40% ahead of bare uWebSockets.js, at 8.5 µs of
+CPU per request and 66 MB. One caveat on the absolutes: this run landed
+5–10% below 2026-09-14 on every row, the three baselines included, with
+wider p99s, so the box was not as quiet; the ordering and the ratios are
+the finding. The 1.8.12 / 1.1.7 changes (engine callbacks in a Node callback
+scope, literal route handlers answered inside the engine) do not touch a
+function-handler hello-world, and the run confirms no regression. The
+clustered row is 24 worker threads in one process; on one box it lands at
+the same loopback ceiling as a single thread. Per-generator (wrk, oha,
+bombardier, autocannon) and Linux-container measurements behind the two
+releases before this one:
+[candidates/2026-09-13](candidates/2026-09-13/README.md) and
 [candidates/2026-09-11](candidates/2026-09-11/README.md).
 
 ### Engine era (MoroJS 1.8.0 / @morojs/engine 1.1.x) — publication run 2026-07-10 (previous)

@@ -1,9 +1,58 @@
 # MoroJS Performance Benchmark Results
 
-**Verified 2026-09-14** · `wrk` · Node v24.11.0 · Apple M2 Ultra (24-core, 64 GB), macOS
-· MoroJS **1.8.10** · @morojs/engine **1.1.6** — both installed **from npm** (the
+**Verified 2026-09-16** · `wrk` · Node v24.11.0 · Apple M2 Ultra (24-core, 64 GB), macOS
+· MoroJS **1.8.12** · @morojs/engine **1.1.7** — both installed **from npm** (the
 exact artifacts users get), served by `bench.js` (one server at a time, per-target
 ports, boot sanity asserts the intended engine actually loaded).
+
+## Publication run 2026-09-16 — MoroJS 1.8.12 / engine 1.1.7, full matrix, `-d 40`, best-of-3 (the headline numbers)
+
+Saved by `bench.js --save`: [results-2026-09-16T01-15-31.md](results-2026-09-16T01-15-31.md)
+(+ `.json`). `wrk -c 100 -d 40`, best-of-3 per target, both profiles, one
+server at a time. Bun 1.3.14, uWebSockets.js 20.69. CPU µs/req and bytes/resp
+are from the no-pipelining profile.
+
+| Server | Req/sec (no pipelining) | Req/sec (pipelined ×10) | Latency avg | Latency p99 | CPU µs/req | bytes/resp | RSS under load |
+|--------|------------------------|--------------------------|-------------|-------------|------------|------------|----------------|
+| **MoroJS + @morojs/engine (npm)** _(default)_ | **111,485** | **913,503** | **0.9 ms** | **3.3 ms** | **8.5** | 125 B | 66 MB |
+| raw @morojs/engine (baseline, no framework) | 108,446 | 832,171 | 1.0 ms | 2.0 ms | 9.0 | 125 B | 54 MB |
+| MoroJS (clustered, npm)² | 106,625 | 953,169 | 0.9 ms | 1.9 ms | 9.3 | 125 B | 432 MB |
+| raw uWebSockets.js (baseline, no framework) | 106,287 | 652,934 | 1.0 ms | 1.9 ms | 9.2 | 142 B | 47 MB |
+| raw Bun.serve (baseline, no framework)³ | 104,026 | 22,558 | 1.0 ms | 2.2 ms | 9.5 | 125 B | 37 MB |
+| MoroJS + uWebSockets.js (npm) | 103,264 | 517,718 | 1.1 ms | 2.6 ms | 9.5 | 142 B | 73 MB |
+| Elysia (Bun)³ | 103,196 | 18,747 | 1.0 ms | 2.4 ms | 9.6 | 139 B | 39 MB |
+| raw node:http (baseline, no framework) | 80,363 | 122,320 | 1.3 ms | 6.6 ms | 12.0 | 191 B | 134 MB |
+| Elysia (Node adapter) | 73,257 | 117,886 | 1.4 ms | 5.4 ms | 13.3 | 172 B | 219 MB |
+| MoroJS (single thread, node engine, npm) | 70,396 | 118,135 | 1.6 ms | 9.0 ms | 13.6 | 187 B | 141 MB |
+| Hono (Node) | 70,320 | 111,114 | 1.5 ms | 5.4 ms | 13.8 | 172 B | 205 MB |
+| Fastify | 70,190 | 115,892 | 1.4 ms | 4.3 ms | 13.7 | 188 B | 134 MB |
+| Koa | 61,216 | 98,674 | 1.6 ms | 3.4 ms | 16.3 | 187 B | 208 MB |
+| Express | 46,790 | 65,664 | 2.2 ms | 5.5 ms | 21.2 | 252 B | 224 MB |
+
+² 24 worker threads in one process (the engine backend's default on POSIX);
+reported for completeness — on a single box the generator competes with the
+workers for cores. ³ Bun 1.3.14.
+
+Read this run against 2026-09-14 with one caveat: **every row, the three
+baselines included, landed 5–10% below the 2026-09-14 numbers and every p99
+widened** (raw node:http 1.7 → 6.6 ms, Fastify 2.1 → 4.3 ms), so the box was
+not as quiet. The absolute figures are a lower bound; the ordering and the
+ratios are the finding.
+
+- **The full framework is still the fastest row without pipelining**:
+  111,485 vs the raw engine's 108,446 (+2.8%), raw uWebSockets.js's 106,287
+  (+4.9%), raw Bun.serve's 104,026 (+7.2%) and Elysia (Bun)'s 103,196
+  (+8.0%). Pipelined it stays far ahead of every non-engine row (913,503 vs
+  652,934 for raw uWS), with the clustered row now the top pipelined number
+  at 953,169.
+- **1.8.12 / 1.1.7 changed nothing on this hot path, and the run confirms
+  no regression**: the engine row costs 8.5 µs/req against 8.1 on 09-14,
+  inside the box-state shift seen on every baseline. The release's fixes
+  (engine callbacks run in a Node callback scope, so promise continuations
+  drain on return; literal route handlers answered inside the engine) are
+  invisible to a function-handler hello-world by design.
+- **Against the framework field** (no pipelining): 1.59× Fastify, 1.52×
+  Elysia on Node, 1.58× Hono, 1.82× Koa, 2.38× Express.
 
 ## Publication run 2026-09-14 — MoroJS 1.8.10 / engine 1.1.6, full matrix, `-d 40`, best-of-3 (the headline numbers)
 
