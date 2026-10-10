@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 // Baseline: raw uWebSockets.js - the ceiling for the uWS-backed stack
 process.env.NODE_ENV = 'production';
-import uWS from 'uWebSockets.js';
+import { createRequire } from 'node:module';
+// Loaded through CommonJS: uWebSockets.js 20.71.0's ESM wrapper imports an
+// index.js the package no longer ships, while its package.json main (uws.js)
+// resolves on every version. Same binary either way.
+const uWS = createRequire(import.meta.url)('uWebSockets.js');
 
 const port = parseInt(process.env.PORT || '3121', 10);
 uWS

@@ -20,6 +20,8 @@
 //        --connections=100 --pipelined --pipelining=N --rate=N --keepalive=off
 //        --cooldown=8 --save --perf --baseline=<file.json> --gate
 //        --generator=wrk|oha|bombardier|autocannon
+//        --server-cpus=0-1 --client-cpus=2-7   (Linux: pin the server and the
+//        generator to disjoint cores with taskset, so neither measures the other)
 //
 // Profiles: DEFAULT is "no pipelining" - the production-representative shape.
 //   HTTP/1.1 pipelining is effectively dead in the real world (browsers
@@ -201,6 +203,18 @@ const warmupSec = flags.warmup ? parseInt(flags.warmup === true ? '5' : flags.wa
 // the two-terminal manual flow (boot logs flush, GC settles)
 const settleSec = parseInt(flags.settle || (quick ? '1' : '3'), 10);
 const wantPerf = !!flags.perf;
+// --server-cpus / --client-cpus: Linux-only core pinning through taskset.
+// The server (and every worker it forks) lands on one set, the generator on
+// the other, so a shared box stops measuring the client against the server.
+const serverCpus = typeof flags['server-cpus'] === 'string' ? flags['server-cpus'] : null;
+const clientCpus = typeof flags['client-cpus'] === 'string' ? flags['client-cpus'] : null;
+if ((serverCpus || clientCpus) && process.platform !== 'linux') {
+  console.error('--server-cpus/--client-cpus need Linux (taskset)');
+  process.exit(1);
+}
+function pinned(cpus, bin, cliArgs) {
+  return cpus ? ['taskset', ['-c', cpus, bin, ...cliArgs]] : [bin, cliArgs];
+}
 const gate = !!flags.gate;
 const baselineFile = typeof flags.baseline === 'string' ? flags.baseline : null;
 // --replay=<results.json>: no benchmarking - load a saved run and re-run the
@@ -395,7 +409,8 @@ function getWrkLua(depth, keepalive) {
 
 function spawnCollect(bin, cliArgs) {
   return new Promise((resolve, reject) => {
-    const child = spawn(bin, cliArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
+    const [pbin, pargs] = pinned(clientCpus, bin, cliArgs);
+    const child = spawn(pbin, pargs, { stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '';
     let err = '';
     child.stdout.on('data', d => (out += d));
@@ -851,7 +866,8 @@ async function benchTarget(target) {
   }
 
   const file = join(__dirname, target.file);
-  const child = spawn(runtimeBin, [file], {
+  const [sbin, sargs] = pinned(serverCpus, runtimeBin, [file]);
+  const child = spawn(sbin, sargs, {
     env: {
       ...process.env,
       NODE_ENV: 'production',

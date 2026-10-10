@@ -23,6 +23,37 @@ from npm, `uWebSockets.js` from the uNetworking GitHub tags so the result
 describes what is published, not a local build. `DURATION`, `RUNS`, and
 `DEPTH` env vars override the defaults (10s, best-of-3, pipeline ×10).
 
+## Results (2026-10-10)
+
+Same VM and harness (ABBA-interleaved, best of 3×10s, wrk `-t6 -c100`),
+node v24.19.0, both packages installed fresh: `@morojs/engine@1.1.12`,
+`uWebSockets.js@20.71.0`. One session, on a host doing other work (the
+absolute numbers are a third above the August sessions and should not be
+compared with them); both servers at 100% of their core mid-run:
+
+| Profile | run | raw @morojs/engine | raw uWebSockets.js |
+|---|---|---|---|
+| plain (no pipelining) | 1 | 298,594 | 213,594 |
+| plain (no pipelining) | 2 | 279,738 | 222,087 |
+| plain (no pipelining) | 3 | 249,990 | 193,228 |
+| pipelined ×10 | 1 | 1,590,435 | 883,760 |
+| pipelined ×10 | 2 | 1,523,958 | 849,016 |
+| pipelined ×10 | 3 | 1,660,044 | 859,468 |
+
+Best of 3: plain **engine +34.4%** (298,594 vs 222,087), pipelined
+**engine +87.8%** (1,660,044 vs 883,760). Unlike August, the plain profile
+no longer flips: the engine's slowest plain run (249,990) beat uWS's
+fastest (222,087), and the pipelined ratio roughly doubled. What changed
+on the engine side between 1.1.5 and 1.1.12 is the Linux transport: its
+own socket path on libuv's epoll instead of libuv streams (1.1.10),
+engine-answered routes framed from a prepared head (1.1.10), one
+`epoll_wait` per loop turn (1.1.11) and each turn's sockets served grouped
+by the peer's CPU (1.1.12). One run on one session; the August caveats
+about VM absolutes still apply, and a second quiet session is the next
+thing to add here. `uWebSockets.js` 20.71.0's ESM wrapper imports a file
+the package no longer ships, so `servers/raw-uws-server.js` now loads it
+through CommonJS (same binary).
+
 ## Results (2026-08-05)
 
 Docker Linux VM (arm64, 8 vCPU, glibc 2.41) on the Apple M2 Ultra host,

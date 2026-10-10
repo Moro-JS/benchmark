@@ -46,3 +46,10 @@ temp/
 conformance/h1spec/
 # local deno used to run h1spec's test driver
 conformance/deno/
+
+# Internal measurement runs (what is being tried, against whom, before it is
+# publishable). The two surveys the README links stay tracked; everything
+# else under candidates/ is local only.
+candidates/*
+!candidates/2026-09-11/
+!candidates/2026-09-13/
